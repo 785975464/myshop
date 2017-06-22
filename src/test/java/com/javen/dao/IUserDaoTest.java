@@ -18,8 +18,8 @@ public class IUserDaoTest {
 
     @Test
     public void testSelectUser() throws Exception {
-        long id = 1;
-        User user = dao.selectUser(id);
+        int id = 1;
+        User user = dao.getUserById(id);
         System.out.println(user.getUsername());
     }
 

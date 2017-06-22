@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 设置为IUserDao接口方法提供sql语句配置 -->
+<mapper namespace="com.javen.dao.ICategoryDao">
+
+    <select id="getCategoryById" resultType="Category" parameterType="int">
+        SELECT * FROM category WHERE id = #{id}
+    </select>
+    <select id="getAllCategorys" resultType="Category">
+        SELECT * FROM category
+    </select>
+    <select id="addCategory" parameterType="Category">
+        INSERT INTO category (type) VALUES (#{type})
+    </select>
+</mapper>

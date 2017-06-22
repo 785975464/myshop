@@ -1,13 +1,18 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>my SSM index page</title>
-</head>
+    <script src="/myshop/jquery/jquery-2.1.1.min.js"></script>
 
+</head>
 <body>
 <p id="test">Hello World!</p>
 <button type="button" onclick="selectUser()">onclick test</button>
+<button type="button" onclick="selectCategory()">onclick Category test</button>
+<button type="button" onclick="getAllUsers()">getAllUsers</button>
+<button type="button" onclick="getAllProducts()">getAllProducts</button>
+
 <script>
     function selectUser() {
 
@@ -17,9 +22,62 @@
                 document.getElementById("test").innerHTML = xmlhttp.responseText;
             }
         }
-        xmlhttp.open("POST", "user/showUser.do", true);
+        xmlhttp.open("POST", "user/getUserById", true);
         xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xmlhttp.send("id=1");
+    }
+
+    function selectCategory() {
+
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                document.getElementById("test").innerHTML = xmlhttp.responseText;
+            }
+        }
+        xmlhttp.open("POST", "category/getCategoryById", true);
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlhttp.send("id=1");
+    }
+
+//    function getAllUsers() {
+//        console.log("getAllUsers!");
+//        var xmlhttp = new XMLHttpRequest();
+//        xmlhttp.onreadystatechange = function () {
+//            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+//                document.getElementById("test").innerHTML = xmlhttp.responseText;
+//            }
+//        }
+//        xmlhttp.open("POST", "user/allUsers", true);
+//        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+//        xmlhttp.send("id=1");
+//    }
+
+    function getAllUsers() {
+        $.ajax({
+            url:"user/getAllUsers",
+            type:"post",
+            data:{"id":1},
+            success:function (data) {
+                console.log("data:"+data);
+            },
+            error:function (err) {
+                console.log("err:"+err);
+            }
+        });
+    }
+
+    function getAllProducts() {
+        $.ajax({
+            url:"product/getAllProducts",
+            type:"get",
+            success:function (data) {
+                console.log("data:"+data);
+            },
+            error:function (err) {
+                console.log("err:"+err);
+            }
+        });
     }
 </script>
 </body>
