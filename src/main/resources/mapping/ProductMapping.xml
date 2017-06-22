@@ -19,4 +19,11 @@
         INSERT INTO product (name, price, number, remark, xremark, cid)
         VALUES (#{name},#{price},#{number},#{remark},#{xremark},#{cid})
     </select>
+    <select id="deleteProductById" parameterType="int">
+        DELETE FROM product WHERE id = #{id}
+    </select>
+    <select id="updateProduct" parameterType="Product">
+        UPDATE product SET name = #{name},price = #{price},number = #{number},remark = #{remark},xremark = #{xremark},cid = #{cid}
+        WHERE id = #{id}
+    </select>
 </mapper>

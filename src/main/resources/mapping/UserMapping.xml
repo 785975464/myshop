@@ -19,4 +19,11 @@
         INSERT INTO user (username, password, birthday, gender, phone, email, role, level, login)
         VALUES (#{username},#{password},#{birthday},#{gender},#{phone},#{email},#{role},#{level},#{login})
     </select>
+    <select id="deleteUserById" parameterType="int">
+        DELETE FROM user WHERE id = #{id}
+    </select>
+    <select id="updateUser" parameterType="User">
+        UPDATE user SET username = #{username},password = #{password},birthday = #{birthday},gender = #{gender},phone = #{phone},email = #{email},role = #{role},level = #{level},login = #{login}
+        WHERE id = #{id}
+    </select>
 </mapper>

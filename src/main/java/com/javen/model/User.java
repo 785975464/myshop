@@ -12,7 +12,7 @@ public class User {
 
     private String password;
 
-    private String birthday;
+    private Date birthday;
 
     private String gender;
 
@@ -50,11 +50,11 @@ public class User {
         this.password = password;
     }
 
-    public String getBirthday() {
+    public Date getBirthday() {
         return birthday;
     }
 
-    public void setBirthday(String birthday) {
+    public void setBirthday(Date birthday) {
         this.birthday = birthday;
     }
 

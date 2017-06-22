@@ -33,4 +33,11 @@ public class CategoryServiceImpl implements ICategoryService {
     public void addCategory(Category category){
         categoryDao.addCategory(category);
     }
+
+    public void deleteCategoryById(int id){ categoryDao.deleteCategoryById(id);}
+
+    public void updateCategory(Category category){
+        categoryDao.updateCategory(category);
+    }
+
 }

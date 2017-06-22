@@ -31,4 +31,11 @@ public class ProductServiceImpl implements IProductService {
         productDao.addProduct(product);
     }
 
+    public void deleteProductById(int id){ productDao.deleteProductById(id); }
+
+    public void updateProduct(Product product){
+        productDao.updateProduct(product);
+    }
+
+
 }

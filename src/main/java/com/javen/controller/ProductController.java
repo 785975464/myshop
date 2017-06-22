@@ -110,4 +110,60 @@ public class ProductController {
             out.close();
         }
     }
+
+    @RequestMapping("/deleteProductById")
+    public void deleteProductById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        String message=null;
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            System.out.println("deleteProductById! id="+id);
+            this.productService.deleteProductById(id);
+            message="success";
+        }catch (Exception e){
+            message="error";
+        }finally {
+            String jsonstring = JsonUtil.msgToJson(message);
+            PrintWriter out = response.getWriter();
+            out.print(jsonstring);
+            out.flush();
+            out.close();
+        }
+    }
+
+    @RequestMapping("/updateProduct")
+    public void updateProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String message=null;
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        try {
+            Product product = new Product();
+            int id = Integer.parseInt(request.getParameter("id"));
+            System.out.println("updateProduct! id="+id);
+            String name = request.getParameter("name");
+            double price = Double.parseDouble(request.getParameter("price"));
+            int number = Integer.parseInt(request.getParameter("number"));
+            String remark = request.getParameter("remark");
+            String xremark = request.getParameter("xremark");
+            int cid = Integer.parseInt(request.getParameter("cid"));
+            product.setId(id);
+            product.setName(name);
+            product.setPrice(price);
+            product.setNumber(number);
+            product.setRemark(remark);
+            product.setXremark(xremark);
+            product.setCid(cid);
+            this.productService.updateProduct(product);
+            message="success";
+        }catch (Exception e){
+            message="error";
+        }finally {
+            String jsonstring = JsonUtil.msgToJson(message);
+            PrintWriter out = response.getWriter();
+            out.print(jsonstring);
+            out.flush();
+            out.close();
+        }
+    }
 }

@@ -13,4 +13,9 @@ public interface IUserDao {
     public List<User> getAllUsers();
 
     public void addUser(User user);
+
+    public void deleteUserById(int id);
+
+    public void updateUser(User user);
+
 }

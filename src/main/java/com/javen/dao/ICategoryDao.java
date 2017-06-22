@@ -13,4 +13,9 @@ public interface ICategoryDao {
     public List<Category> getAllCategorys();
 
     public void addCategory(Category category);
+
+    public void deleteCategoryById(int id);
+
+    public void updateCategory(Category category);
+
 }

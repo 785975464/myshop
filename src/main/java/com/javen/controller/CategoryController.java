@@ -83,4 +83,49 @@ public class CategoryController {
         }
     }
 
+    @RequestMapping("/deleteCategoryById")
+    public void deleteProductById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        String message=null;
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            System.out.println("deleteCategoryById! id="+id);
+            this.categoryService.deleteCategoryById(id);
+            message="success";
+        }catch (Exception e){
+            message="error";
+        }finally {
+            String jsonstring = JsonUtil.msgToJson(message);
+            PrintWriter out = response.getWriter();
+            out.print(jsonstring);
+            out.flush();
+            out.close();
+        }
+    }
+
+    @RequestMapping("/updateCategory")
+    public void updateCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String message=null;
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        try {
+            Category category = new Category();
+            int id = Integer.parseInt(request.getParameter("id"));
+            System.out.println("updateCategory! id="+id);
+            String type = request.getParameter("type");
+            category.setId(id);
+            category.setType(type);
+            this.categoryService.updateCategory(category);
+            message="success";
+        }catch (Exception e){
+            message="error";
+        }finally {
+            String jsonstring = JsonUtil.msgToJson(message);
+            PrintWriter out = response.getWriter();
+            out.print(jsonstring);
+            out.flush();
+            out.close();
+        }
+    }
 }

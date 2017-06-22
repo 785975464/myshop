@@ -20,6 +20,8 @@ import com.javen.model.User;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,11 +85,12 @@ public class UserController {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String message=null;
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
         try {
             User user = new User();
             String username = request.getParameter("username");
             String password = request.getParameter("password");
-            String birthday = request.getParameter("birthday");
+            Date birthday = sdf.parse(request.getParameter("birthday"));
             String gender = request.getParameter("gender");
             String phone = request.getParameter("phone");
             String email = request.getParameter("email");
@@ -115,6 +118,70 @@ public class UserController {
             user.settLevel(level);
             user.setLogin(false);
             this.userService.addUser(user);
+            message="success";
+        }catch (Exception e){
+            message="error";
+        }finally {
+            String jsonstring = JsonUtil.msgToJson(message);
+            PrintWriter out = response.getWriter();
+            out.print(jsonstring);
+            out.flush();
+            out.close();
+        }
+    }
+
+    @RequestMapping("/deleteUserById")
+    public void deleteUserById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        String message=null;
+
+        try {
+            int id = Integer.parseInt(request.getParameter("id"));
+            System.out.println("deleteUserById! id="+id);
+            this.userService.deleteUserById(id);
+            message="success";
+        }catch (Exception e){
+            message="error";
+        }finally {
+            String jsonstring = JsonUtil.msgToJson(message);
+            PrintWriter out = response.getWriter();
+            out.print(jsonstring);
+            out.flush();
+            out.close();
+        }
+    }
+
+    @RequestMapping("/updateUser")
+    public void updateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        String message=null;
+        SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            User user = new User();
+            int id = Integer.parseInt(request.getParameter("id"));
+            System.out.println("updateUser! id="+id);
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+            Date birthday = sdf.parse(request.getParameter("birthday"));
+            String gender = request.getParameter("gender");
+            String phone = request.getParameter("phone");
+            String email = request.getParameter("email");
+            int role = Integer.parseInt(request.getParameter("role"));
+            int level = Integer.parseInt(request.getParameter("level"));
+            boolean login = Boolean.parseBoolean(request.getParameter("login"));
+            user.setId(id);
+            user.setUsername(username);
+            user.setPassword(password);
+            user.setBirthday(birthday);
+            user.setGender(gender);
+            user.setPhone(phone);
+            user.setEmail(email);
+            user.setRole(role);
+            user.settLevel(level);
+            user.setLogin(login);
+            this.userService.updateUser(user);
             message="success";
         }catch (Exception e){
             message="error";

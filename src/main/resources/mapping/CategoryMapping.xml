@@ -12,4 +12,10 @@
     <select id="addCategory" parameterType="Category">
         INSERT INTO category (type) VALUES (#{type})
     </select>
+    <select id="deleteCategoryById" parameterType="int">
+        DELETE FROM category WHERE id = #{id}
+    </select>
+    <select id="updateCategory" parameterType="Category">
+        UPDATE category SET type = #{type} WHERE id = #{id}
+    </select>
 </mapper>
