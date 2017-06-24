@@ -9,21 +9,24 @@
         <result property="password" column="password"/>
         <result property="age" column="age"/>
     </resultMap>-->
-    <select id="getProductById" resultType="Product" parameterType="int">
+    <select id="get" resultType="Product" parameterType="int">
         SELECT * FROM product WHERE id = #{id}
     </select>
-    <select id="getAllProducts" resultType="Product">
+    <select id="query" resultType="Product">
         SELECT * FROM product
     </select>
-    <select id="addProduct" parameterType="Product">
+    <select id="add" parameterType="Product">
         INSERT INTO product (name, price, number, remark, xremark, cid)
         VALUES (#{name},#{price},#{number},#{remark},#{xremark},#{cid})
     </select>
-    <select id="deleteProductById" parameterType="int">
+    <select id="delete" parameterType="int">
         DELETE FROM product WHERE id = #{id}
     </select>
-    <select id="updateProduct" parameterType="Product">
+    <select id="update" parameterType="Product">
         UPDATE product SET name = #{name},price = #{price},number = #{number},remark = #{remark},xremark = #{xremark},cid = #{cid}
         WHERE id = #{id}
+    </select>
+    <select id="queryByCategoryId" resultType="Product" parameterType="int">
+        SELECT * FROM product WHERE cid = #{id}
     </select>
 </mapper>

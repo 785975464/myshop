@@ -21,7 +21,7 @@ public class JsonUtil {
 			json.append("\"\"");
 		} else if (object instanceof String ) {
 			json.append("\"").append((String) object).append("\"");
-		} else if (object instanceof Boolean || object instanceof Integer) {
+		} else if (object instanceof Boolean || object instanceof Integer || object instanceof Double) {
 			json.append("\"").append(object.toString()).append("\"");
 		} else {
 			json.append(beanToJson(object));
@@ -51,9 +51,15 @@ public class JsonUtil {
 					String name = objectToJson(props[i].getName());
 					String value = objectToJson(props[i].getReadMethod()
 							.invoke(bean));
+//					System.out.println("in beanToJson! name:"+name+"value:"+value);
 					json.append(name);
 					json.append(":");
-					json.append(value);
+					if (value==null || value.equals("") || value.equals("}")){
+						json.append("\"\"");
+					}
+					else {
+						json.append(value);
+					}
 					json.append(",");
 				} catch (Exception e) {
 				}

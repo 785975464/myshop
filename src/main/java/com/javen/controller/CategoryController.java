@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -33,21 +34,22 @@ public class CategoryController {
     @Resource
     private ICategoryService categoryService;
     // /user/test?id=1
-    @RequestMapping("/getCategoryById")
+    @RequestMapping("/get")
     public void selectCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         int id = Integer.parseInt(request.getParameter("id"));
-        Category category = this.categoryService.getCategoryById(id);
+        Category category = (Category) this.categoryService.get(id);
+//        Category category = this.categoryService.getCategoryById(id);
         ObjectMapper mapper = new ObjectMapper();
         response.getWriter().write(mapper.writeValueAsString(category));
         response.getWriter().close();
     }
 
-    @RequestMapping("/getAllCategorys")
-    public void getAllProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<Category> listCategory =  categoryService.getAllCategorys();
-        System.out.println("getAllProducts! listProduct.size():"+listCategory.size());
+    @RequestMapping("/query")
+    public void getAllCategorys(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<Category> listCategory =  categoryService.query();
+        System.out.println("getAllLevels! listCategory.size():"+listCategory.size());
         for (int i=0;i<listCategory.size();i++){
             System.out.println(listCategory.get(i).toString());
         }
@@ -60,8 +62,8 @@ public class CategoryController {
         out.close();
     }
 
-    @RequestMapping("/addCategory")
-    public void addProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping("/add")
+    public void addCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
         System.out.println("addCategory!");
         String message=null;
         request.setCharacterEncoding("UTF-8");
@@ -70,7 +72,7 @@ public class CategoryController {
             Category category = new Category();
             String type = request.getParameter("type");
             category.setType(type);
-            this.categoryService.addCategory(category);
+            this.categoryService.add(category);
             message="success";
         }catch (Exception e){
             message="error";
@@ -83,15 +85,15 @@ public class CategoryController {
         }
     }
 
-    @RequestMapping("/deleteCategoryById")
-    public void deleteProductById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping("/delete")
+    public void deleteCategoryById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String message=null;
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             System.out.println("deleteCategoryById! id="+id);
-            this.categoryService.deleteCategoryById(id);
+            this.categoryService.delete(id);
             message="success";
         }catch (Exception e){
             message="error";
@@ -104,7 +106,7 @@ public class CategoryController {
         }
     }
 
-    @RequestMapping("/updateCategory")
+    @RequestMapping("/update")
     public void updateCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String message=null;
         request.setCharacterEncoding("UTF-8");
@@ -116,7 +118,7 @@ public class CategoryController {
             String type = request.getParameter("type");
             category.setId(id);
             category.setType(type);
-            this.categoryService.updateCategory(category);
+            this.categoryService.update(category);
             message="success";
         }catch (Exception e){
             message="error";
@@ -128,4 +130,91 @@ public class CategoryController {
             out.close();
         }
     }
+
+
+//
+//    @RequestMapping("/getAllCategorys")
+//    public void getAllProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        List<Category> listCategory =  categoryService.getAllCategorys();
+//        System.out.println("getAllProducts! listProduct.size():"+listCategory.size());
+//        for (int i=0;i<listCategory.size();i++){
+//            System.out.println(listCategory.get(i).toString());
+//        }
+//        response.setCharacterEncoding("UTF-8");
+//        String listjson = JsonUtil.listToJson(listCategory);
+//        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listCategory.size()+",\"recordsFiltered\":"+listCategory.size()+"}";
+//        PrintWriter out = response.getWriter();
+//        out.print(jsonstring);
+//        out.flush();
+//        out.close();
+//    }
+//
+//    @RequestMapping("/addCategory")
+//    public void addProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        System.out.println("addCategory!");
+//        String message=null;
+//        request.setCharacterEncoding("UTF-8");
+//        response.setCharacterEncoding("UTF-8");
+//        try {
+//            Category category = new Category();
+//            String type = request.getParameter("type");
+//            category.setType(type);
+//            this.categoryService.addCategory(category);
+//            message="success";
+//        }catch (Exception e){
+//            message="error";
+//        }finally {
+//            String jsonstring = JsonUtil.msgToJson(message);
+//            PrintWriter out = response.getWriter();
+//            out.print(jsonstring);
+//            out.flush();
+//            out.close();
+//        }
+//    }
+//
+//    @RequestMapping("/deleteCategoryById")
+//    public void deleteProductById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        request.setCharacterEncoding("UTF-8");
+//        response.setCharacterEncoding("UTF-8");
+//        String message=null;
+//        try {
+//            int id = Integer.parseInt(request.getParameter("id"));
+//            System.out.println("deleteCategoryById! id="+id);
+//            this.categoryService.deleteCategoryById(id);
+//            message="success";
+//        }catch (Exception e){
+//            message="error";
+//        }finally {
+//            String jsonstring = JsonUtil.msgToJson(message);
+//            PrintWriter out = response.getWriter();
+//            out.print(jsonstring);
+//            out.flush();
+//            out.close();
+//        }
+//    }
+//
+//    @RequestMapping("/updateCategory")
+//    public void updateCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        String message=null;
+//        request.setCharacterEncoding("UTF-8");
+//        response.setCharacterEncoding("UTF-8");
+//        try {
+//            Category category = new Category();
+//            int id = Integer.parseInt(request.getParameter("id"));
+//            System.out.println("updateCategory! id="+id);
+//            String type = request.getParameter("type");
+//            category.setId(id);
+//            category.setType(type);
+//            this.categoryService.updateCategory(category);
+//            message="success";
+//        }catch (Exception e){
+//            message="error";
+//        }finally {
+//            String jsonstring = JsonUtil.msgToJson(message);
+//            PrintWriter out = response.getWriter();
+//            out.print(jsonstring);
+//            out.flush();
+//            out.close();
+//        }
+//    }
 }

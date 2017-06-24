@@ -27,27 +27,41 @@ public class ProductController {
     @Resource
     private IProductService productService;
     // /user/test?id=1
-    @RequestMapping("/getProductById")
+    @RequestMapping("/get")
     public void selectCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         int id = Integer.parseInt(request.getParameter("id"));
-        Product product = this.productService.getProductById(id);
+//        Product product = this.productService.getProductById(id);
+        Product product = (Product) this.productService.get(id);
         ObjectMapper mapper = new ObjectMapper();
         response.getWriter().write(mapper.writeValueAsString(product));
         response.getWriter().close();
     }
 
-    @RequestMapping("/getAllProducts")
+    @RequestMapping("/query")
     public void getAllProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<Product> listProduct =  productService.getAllProducts();
+        List<Product> listProduct =  productService.query();
         System.out.println("getAllProducts! listProduct.size():"+listProduct.size());
-
-//        Map<String,Object> jsonMap = new HashMap<String, Object>();
         for (int i=0;i<listProduct.size();i++){
-//            jsonMap.put(listUser.get(i).getUsername(),listUser.get(i).getPassword());
             System.out.println(listProduct.get(i).toString());
         }
+        response.setCharacterEncoding("UTF-8");
+        String listjson = JsonUtil.listToJson(listProduct);
+        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
+        PrintWriter out = response.getWriter();
+        out.print(jsonstring);
+        out.flush();
+        out.close();
+    }
+
+    @RequestMapping("/query/categoryid")
+    public void getProductsByCategoryId(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        int id = Integer.parseInt(request.getParameter("id"));
+        List<Product> listProduct =  productService.queryByCategoryId(id);
+        System.out.println("getProductsByCategoryId! listProduct.size():"+listProduct.size());
 
         response.setCharacterEncoding("UTF-8");
         String listjson = JsonUtil.listToJson(listProduct);
@@ -58,7 +72,7 @@ public class ProductController {
         out.close();
     }
 
-    @RequestMapping("/addProduct")
+    @RequestMapping("/add")
     public void addProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
         System.out.println("addProduct!");
         request.setCharacterEncoding("UTF-8");
@@ -98,7 +112,7 @@ public class ProductController {
             product.setRemark(remark);
             product.setXremark(xremark);
             product.setCid(cid);
-            this.productService.addProduct(product);
+            this.productService.add(product);
             message="success";
         }catch (Exception e){
             message="error";
@@ -111,7 +125,7 @@ public class ProductController {
         }
     }
 
-    @RequestMapping("/deleteProductById")
+    @RequestMapping("/delete")
     public void deleteProductById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
@@ -119,7 +133,7 @@ public class ProductController {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             System.out.println("deleteProductById! id="+id);
-            this.productService.deleteProductById(id);
+            this.productService.delete(id);
             message="success";
         }catch (Exception e){
             message="error";
@@ -132,7 +146,7 @@ public class ProductController {
         }
     }
 
-    @RequestMapping("/updateProduct")
+    @RequestMapping("/update")
     public void updateProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String message=null;
         request.setCharacterEncoding("UTF-8");
@@ -154,7 +168,7 @@ public class ProductController {
             product.setRemark(remark);
             product.setXremark(xremark);
             product.setCid(cid);
-            this.productService.updateProduct(product);
+            this.productService.update(product);
             message="success";
         }catch (Exception e){
             message="error";

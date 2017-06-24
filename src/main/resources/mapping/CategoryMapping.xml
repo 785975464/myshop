@@ -3,19 +3,19 @@
 <!-- 设置为IUserDao接口方法提供sql语句配置 -->
 <mapper namespace="com.javen.dao.ICategoryDao">
 
-    <select id="getCategoryById" resultType="Category" parameterType="int">
+    <select id="get" resultType="Category" parameterType="int">
         SELECT * FROM category WHERE id = #{id}
     </select>
-    <select id="getAllCategorys" resultType="Category">
+    <select id="query" resultType="Category">
         SELECT * FROM category
     </select>
-    <select id="addCategory" parameterType="Category">
+    <select id="add" parameterType="Category">
         INSERT INTO category (type) VALUES (#{type})
     </select>
-    <select id="deleteCategoryById" parameterType="int">
+    <select id="delete" parameterType="int">
         DELETE FROM category WHERE id = #{id}
     </select>
-    <select id="updateCategory" parameterType="Category">
+    <select id="update" parameterType="Category">
         UPDATE category SET type = #{type} WHERE id = #{id}
     </select>
 </mapper>

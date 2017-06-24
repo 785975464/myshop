@@ -16,12 +16,12 @@ public class IUserDaoTest {
     @Autowired
     private IUserDao dao;
 
-    @Test
-    public void testSelectUser() throws Exception {
-        int id = 1;
-        User user = dao.getUserById(id);
-        System.out.println(user.getUsername());
-    }
+//    @Test
+//    public void testSelectUser() throws Exception {
+//        int id = 1;
+//        User user = dao.getUserById(id);
+//        System.out.println(user.getUsername());
+//    }
 
 }
 

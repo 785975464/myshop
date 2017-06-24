@@ -12,6 +12,8 @@
 
     <!-- 扫描web相关的bean -->
     <context:component-scan base-package="com.javen.controller"/>
+    <context:annotation-config/>
+
 
     <!-- 开启SpringMVC注解模式 -->
     <mvc:annotation-driven/>

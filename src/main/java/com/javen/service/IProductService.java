@@ -7,15 +7,18 @@ import java.util.List;
 /**
  * Created by Jay on 2017/6/21.
  */
-public interface IProductService {
-    public Product getProductById(int id);
+public interface IProductService extends IBaseService{
 
-    public List<Product> getAllProducts();
+    List<Product> queryByCategoryId(int id);
 
-    public void addProduct(Product product);
-
-    public void deleteProductById(int id);
-
-    public void updateProduct(Product product);
+//    public Product getProductById(int id);
+//
+//    public List<Product> getAllProducts();
+//
+//    public void addProduct(Product product);
+//
+//    public void deleteProductById(int id);
+//
+//    public void updateProduct(Product product);
 
 }

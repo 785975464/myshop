@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 设置为IOrderDao接口方法提供sql语句配置 -->
+<mapper namespace="com.javen.dao.IOrderDao">
+
+    <select id="get" resultType="Order" parameterType="int">
+        SELECT * FROM orderinfo WHERE id = #{id}
+    </select>
+    <select id="query" resultType="Order">
+        SELECT * FROM orderinfo
+    </select>
+    <select id="add" parameterType="Order">
+        INSERT INTO orderinfo (uid,pid,datetime,total,solve,solveremark,close,closeremark)
+        VALUES (#{uid},#{pid},#{datetime},#{total},#{solve},#{solveremark},#{close},#{closeremark})
+    </select>
+    <select id="delete" parameterType="int">
+        DELETE FROM orderinfo WHERE id = #{id}
+    </select>
+    <select id="update" parameterType="Order">
+        UPDATE orderinfo SET uid = #{uid},pid = #{pid},datetime = #{datetime},total = #{total},solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}
+    </select>
+</mapper>

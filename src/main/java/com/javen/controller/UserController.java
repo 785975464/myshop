@@ -10,76 +10,57 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.service.IUserService;
 import com.javen.util.JsonUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import com.javen.model.User;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-
+//@CrossOrigin(origins = "*",maxAge = 3600)        //允许跨域
 @Controller
-@RequestMapping("/user")
-// /user/**
+@RequestMapping("/user")    //"/user/**"
 public class UserController {
-//    private static Logger log=LoggerFactory.getLogger(UserController.class);
 
     @Resource
     private IUserService userService;
-    // /user/test?id=1
-    @RequestMapping("/getUserById")
+
+    @RequestMapping("/get")
     public void getUserById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         int userId = Integer.parseInt(request.getParameter("id"));
-        User user = this.userService.getUserById(userId);
+        User user = (User) this.userService.get(userId);
         ObjectMapper mapper = new ObjectMapper();
         response.getWriter().write(mapper.writeValueAsString(user));
         response.getWriter().close();
     }
 
-    @RequestMapping("/getAllUsers")
+    @RequestMapping("/query")
     public void getAllUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<User> listUser =  userService.getAllUsers();
+//        response.setHeader("Access-Control-Allow-Origin", "*");
+        List<User> listUser =  userService.query();
         System.out.println("getAllUsers! listUser.size():"+listUser.size());
-
-//        Map<String,Object> jsonMap = new HashMap<String, Object>();
         for (int i=0;i<listUser.size();i++){
-//            jsonMap.put(listUser.get(i).getUsername(),listUser.get(i).getPassword());
             System.out.println(listUser.get(i).toString());
         }
-//        response.setContentType("application/json");
-//        response.setHeader("Pragma","No-cache");
-//        response.setCharacterEncoding("UTF-8");
-//        PrintWriter out = null;
-//        out = response.getWriter();
-//        out.print(JsonUtil.toJSONString(jsonMap));
-//        out.flush();
-//        out.close();
-
-//        request.setAttribute("listUser", listUser);
-//        return "/allUser";
-
         response.setCharacterEncoding("UTF-8");
         String listjson = JsonUtil.listToJson(listUser);
         String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listUser.size()+",\"recordsFiltered\":"+listUser.size()+"}";
+//        String jsonstring="{data:"+listUser+",draw:1,recordsTotal:"+listUser.size()+",recordsFiltered:"+listUser.size()+"}";
+//
+        System.out.println("jsonstring:"+jsonstring);
         PrintWriter out = response.getWriter();
         out.print(jsonstring);
         out.flush();
         out.close();
-//        response.getWriter().write(jsonstring);  //以这种方式传值json
     }
 
-    @RequestMapping("/addUser")
+    @RequestMapping("/add")
     public void addUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         System.out.println("addUser!");
         request.setCharacterEncoding("UTF-8");
@@ -117,7 +98,7 @@ public class UserController {
             user.setRole(role);
             user.settLevel(level);
             user.setLogin(false);
-            this.userService.addUser(user);
+            this.userService.add(user);
             message="success";
         }catch (Exception e){
             message="error";
@@ -130,16 +111,15 @@ public class UserController {
         }
     }
 
-    @RequestMapping("/deleteUserById")
+    @RequestMapping("/delete")
     public void deleteUserById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String message=null;
-
         try {
             int id = Integer.parseInt(request.getParameter("id"));
             System.out.println("deleteUserById! id="+id);
-            this.userService.deleteUserById(id);
+            this.userService.delete(id);
             message="success";
         }catch (Exception e){
             message="error";
@@ -152,7 +132,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping("/updateUser")
+    @RequestMapping("/update")
     public void updateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
@@ -181,7 +161,7 @@ public class UserController {
             user.setRole(role);
             user.settLevel(level);
             user.setLogin(login);
-            this.userService.updateUser(user);
+            this.userService.update(user);
             message="success";
         }catch (Exception e){
             message="error";
@@ -192,5 +172,30 @@ public class UserController {
             out.flush();
             out.close();
         }
+    }
+
+    @RequestMapping("/login")
+    public void checkUserIsLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        String message=null;
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(password);
+        int size = this.userService.login(user);
+//        System.out.println("发现"+size+"个用户登录！");
+        if (size==1){
+            message="success";
+        }
+        else{
+            message="error";
+        }
+        String jsonstring = JsonUtil.msgToJson(message);
+        PrintWriter out = response.getWriter();
+        out.print(jsonstring);
+        out.flush();
+        out.close();
     }
 }

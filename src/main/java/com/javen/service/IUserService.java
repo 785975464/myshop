@@ -7,15 +7,18 @@ import java.util.List;
 /**
  * Created by Jay on 2017/6/21.
  */
-public interface IUserService {
-    public User getUserById(int userId);
+public interface IUserService extends IBaseService{
 
-    public List<User> getAllUsers();
+    int login(User user);
 
-    public void addUser(User user);
-
-    public void deleteUserById(int id);
-
-    public void updateUser(User user);
+//    public User getUserById(int userId);
+//
+//    public List<User> getAllUsers();
+//
+//    public void addUser(User user);
+//
+//    public void deleteUserById(int id);
+//
+//    public void updateUser(User user);
 
 }

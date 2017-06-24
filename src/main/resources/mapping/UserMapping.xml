@@ -9,21 +9,24 @@
         <result property="password" column="password"/>
         <result property="age" column="age"/>
     </resultMap>-->
-    <select id="getUserById" resultType="User" parameterType="int">
+    <select id="get" resultType="User" parameterType="int">
         SELECT * FROM user WHERE id = #{id}
     </select>
-    <select id="getAllUsers" resultType="User">
+    <select id="query" resultType="User">
         SELECT * FROM user
     </select>
-    <select id="addUser" parameterType="User">
+    <select id="add" parameterType="User">
         INSERT INTO user (username, password, birthday, gender, phone, email, role, level, login)
         VALUES (#{username},#{password},#{birthday},#{gender},#{phone},#{email},#{role},#{level},#{login})
     </select>
-    <select id="deleteUserById" parameterType="int">
+    <select id="delete" parameterType="int">
         DELETE FROM user WHERE id = #{id}
     </select>
-    <select id="updateUser" parameterType="User">
+    <select id="update" parameterType="User">
         UPDATE user SET username = #{username},password = #{password},birthday = #{birthday},gender = #{gender},phone = #{phone},email = #{email},role = #{role},level = #{level},login = #{login}
         WHERE id = #{id}
+    </select>
+    <select id="login" resultType="int" parameterType="User">
+        SELECT COUNT(*) FROM user WHERE username = #{username} AND password = #{password}
     </select>
 </mapper>
