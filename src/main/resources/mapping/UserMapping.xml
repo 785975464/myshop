@@ -26,7 +26,7 @@
         UPDATE user SET username = #{username},password = #{password},birthday = #{birthday},gender = #{gender},phone = #{phone},email = #{email},role = #{role},level = #{level},login = #{login}
         WHERE id = #{id}
     </select>
-    <select id="login" resultType="int" parameterType="User">
-        SELECT COUNT(*) FROM user WHERE username = #{username} AND password = #{password}
+    <select id="login" resultType="User" parameterType="User">
+        SELECT * FROM user WHERE username = #{username} AND password = #{password}
     </select>
 </mapper>

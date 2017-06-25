@@ -50,9 +50,9 @@ public class CategoryController {
     public void getAllCategorys(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Category> listCategory =  categoryService.query();
         System.out.println("getAllLevels! listCategory.size():"+listCategory.size());
-        for (int i=0;i<listCategory.size();i++){
-            System.out.println(listCategory.get(i).toString());
-        }
+//        for (int i=0;i<listCategory.size();i++){
+//            System.out.println(listCategory.get(i).toString());
+//        }
         response.setCharacterEncoding("UTF-8");
         String listjson = JsonUtil.listToJson(listCategory);
         String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listCategory.size()+",\"recordsFiltered\":"+listCategory.size()+"}";

@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface IUserDao extends IBaseDao<User,Integer>{
 
-    int login(User user);
+    List<User> login(User user);
 //    public User getUserById(int id);
 //
 //    public List<User> getAllUsers();

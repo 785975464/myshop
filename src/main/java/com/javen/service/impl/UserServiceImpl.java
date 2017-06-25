@@ -24,7 +24,7 @@ public class UserServiceImpl extends BaseServiceImpl implements IUserService {
         return userDao;
     }
 
-    public int login(User user){
+    public List<User> login(User user){
         return userDao.login(user);
     }
 

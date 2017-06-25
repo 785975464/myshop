@@ -6,8 +6,11 @@ package com.javen.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.model.Level;
+import com.javen.model.User;
 import com.javen.service.ILevelService;
+import com.javen.service.IUserService;
 import com.javen.util.JsonUtil;
+import com.javen.util.config;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -27,6 +30,8 @@ public class LevelController {
 
     @Resource
     private ILevelService levelService;
+    @Resource
+    private IUserService userService;
 
     @RequestMapping("/get")
     public void selectCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -42,10 +47,10 @@ public class LevelController {
     @RequestMapping("/query")
     public void getAllLevels(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Level> listLevel =  levelService.query();
-        System.out.println("getAllLevels! listLevel.size():"+listLevel.size());
-        for (int i=0;i<listLevel.size();i++){
-            System.out.println(listLevel.get(i).toString());
-        }
+//        System.out.println("getAllLevels! listLevel.size():"+listLevel.size());
+//        for (int i=0;i<listLevel.size();i++){
+//            System.out.println(listLevel.get(i).toString());
+//        }
         response.setCharacterEncoding("UTF-8");
         String listjson = JsonUtil.listToJson(listLevel);
         String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listLevel.size()+",\"recordsFiltered\":"+listLevel.size()+"}";
@@ -125,6 +130,26 @@ public class LevelController {
             out.print(jsonstring);
             out.flush();
             out.close();
+        }
+    }
+
+    @RequestMapping("/getDiscount")
+    public void getDiscountByUserId(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+//        User user = (User)this.userService.get(config.userID);
+        User user = (User)config.sessionmap.get("userinfo");
+//        int l = Integer.parseInt(request.getParameter("level"));
+        if (user!=null) {       //获取当前用户的折扣
+            Level level = this.levelService.getDiscount(user.getLevel());
+            ObjectMapper mapper = new ObjectMapper();
+            response.getWriter().write(mapper.writeValueAsString(level));
+            response.getWriter().close();
+        }
+        else{
+            ObjectMapper mapper = new ObjectMapper();
+            response.getWriter().write(mapper.writeValueAsString("error"));
+            response.getWriter().close();
         }
     }
 }

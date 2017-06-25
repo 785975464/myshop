@@ -43,9 +43,9 @@ public class ProductController {
     public void getAllProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Product> listProduct =  productService.query();
         System.out.println("getAllProducts! listProduct.size():"+listProduct.size());
-        for (int i=0;i<listProduct.size();i++){
-            System.out.println(listProduct.get(i).toString());
-        }
+//        for (int i=0;i<listProduct.size();i++){
+//            System.out.println(listProduct.get(i).toString());
+//        }
         response.setCharacterEncoding("UTF-8");
         String listjson = JsonUtil.listToJson(listProduct);
         String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";

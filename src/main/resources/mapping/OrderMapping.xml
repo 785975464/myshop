@@ -9,14 +9,17 @@
     <select id="query" resultType="Order">
         SELECT * FROM orderinfo
     </select>
-    <select id="add" parameterType="Order">
+    <insert id="add" parameterType="Order" useGeneratedKeys="true" keyProperty="id" >
         INSERT INTO orderinfo (uid,pid,datetime,total,solve,solveremark,close,closeremark)
         VALUES (#{uid},#{pid},#{datetime},#{total},#{solve},#{solveremark},#{close},#{closeremark})
-    </select>
+    </insert>
     <select id="delete" parameterType="int">
         DELETE FROM orderinfo WHERE id = #{id}
     </select>
     <select id="update" parameterType="Order">
         UPDATE orderinfo SET uid = #{uid},pid = #{pid},datetime = #{datetime},total = #{total},solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}
+    </select>
+    <select id="getOrders" parameterType="int" resultType="Order">
+        SELECT * FROM orderinfo WHERE uid = #{uid}
     </select>
 </mapper>

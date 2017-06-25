@@ -9,7 +9,7 @@ import java.util.List;
  */
 public interface IUserService extends IBaseService{
 
-    int login(User user);
+    List<User> login(User user);
 
 //    public User getUserById(int userId);
 //

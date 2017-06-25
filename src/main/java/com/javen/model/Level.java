@@ -7,6 +7,7 @@ public class Level {
     private Integer id;
     private Integer level;
     private double discount;
+    private Integer credit;
 
     public Integer getId() {
         return id;
@@ -32,12 +33,21 @@ public class Level {
         this.discount = discount;
     }
 
+    public Integer getCredit() {
+        return credit;
+    }
+
+    public void setCredit(Integer credit) {
+        this.credit = credit;
+    }
+
     @Override
     public String toString() {
         return "Level{" +
                 "id=" + id +
                 ", level=" + level +
                 ", discount=" + discount +
+                ", credit=" + credit +
                 '}';
     }
 }

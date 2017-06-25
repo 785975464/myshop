@@ -16,6 +16,9 @@
         DELETE FROM level WHERE id = #{id}
     </select>
     <select id="update" parameterType="Level">
-        UPDATE level SET level = #{level},discount = #{discount} WHERE id = #{id}
+        UPDATE level SET level = #{level},discount = #{discount},credit = #{credit} WHERE id = #{id}
+    </select>
+    <select id="getDiscount" resultType="Level" parameterType="int">
+        SELECT * FROM level WHERE level = #{level}
     </select>
 </mapper>

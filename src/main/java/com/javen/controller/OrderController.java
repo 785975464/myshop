@@ -6,17 +6,21 @@ package com.javen.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.model.Order;
+import com.javen.model.User;
 import com.javen.service.IOrderService;
 import com.javen.util.JsonUtil;
+import com.javen.util.config;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 
@@ -37,6 +41,35 @@ public class OrderController {
         ObjectMapper mapper = new ObjectMapper();
         response.getWriter().write(mapper.writeValueAsString(order));
         response.getWriter().close();
+    }
+
+    @RequestMapping("/getCurrent")
+    public void getCurrentOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        Order order=(Order)config.sessionmap.get("orderinfo");
+        System.out.println("getCurrentOrder order:"+order.getId()+" "+order.getDatetime());
+        ObjectMapper mapper = new ObjectMapper();
+        response.getWriter().write(mapper.writeValueAsString(order));
+        response.getWriter().close();
+    }
+
+    @RequestMapping("/getOrders")
+    public void getOrdersByUserId(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+//        User user = (User)this.userService.get(config.userID);
+        User user = (User)config.sessionmap.get("userinfo");
+        if (user!=null) {
+            List<Order> listOrder = this.orderService.getOrders(user.getId());
+            String listjson = JsonUtil.listToJson(listOrder);
+            String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listOrder.size()+",\"recordsFiltered\":"+listOrder.size()+"}";
+            System.out.println("jsonstring:"+jsonstring);
+            PrintWriter out = response.getWriter();
+            out.print(jsonstring);
+            out.flush();
+            out.close();
+        }
     }
 
     @RequestMapping("/query")
@@ -61,29 +94,46 @@ public class OrderController {
         System.out.println("addOrder!");
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        String message=null;
+        //添加订单前先验证用户
+        String message="";
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (config.sessionID==null || config.sessionID.equals("")){
+            message="none";
+        }
+        HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
+        if (session==null || session.getAttribute("username")==null || session.getAttribute("username").equals("")){
+            System.out.println("session为空");
+            message="none";
+        }
+        if (message.equals("none")){
+            String jsonstring = JsonUtil.msgToJson(message);
+            PrintWriter out = response.getWriter();
+            out.print(jsonstring);
+            out.flush();
+            out.close();
+            return;
+        }
+        System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
         try {
             Order order = new Order();
-            int uid = Integer.parseInt(request.getParameter("uid"));
+            int uid = Integer.parseInt(session.getAttribute("id").toString());
             int pid = Integer.parseInt(request.getParameter("pid"));
-            Timestamp datetime = Timestamp.valueOf(request.getParameter("datetime"));
+            Long time = new Long(request.getParameter("datetime"));
+            Timestamp datetime = Timestamp.valueOf(df.format(time));
+//            Timestamp datetime = Timestamp.valueOf(request.getParameter("datetime"));
+//            Timestamp datetime = Timestamp.valueOf(df.format(request.getParameter("datetime")));
             double total = Double.parseDouble(request.getParameter("total"));
-//            boolean solve = Boolean.parseBoolean(request.getParameter("solve"));
-//            boolean solve;
-            String solveremark = request.getParameter("solveremark");
-//            boolean close = Boolean.parseBoolean(request.getParameter("close"));
-            boolean close = false;
-            String closeremark = request.getParameter("closeremark");
-//            System.out.println("datetime:"+datetime+" solve:"+solve+" close:"+close);
             order.setUid(uid);
             order.setPid(pid);
             order.setDatetime(datetime);
             order.setTotal(total);
             order.setSolve(-1);    //默认为-1
-            order.setSolveremark(solveremark);
-            order.setClose(close);
-            order.setCloseremark(closeremark);
+            order.setSolveremark("");
+            order.setClose(false);
+            order.setCloseremark("");
             orderService.add(order);
+            System.out.println("当前订单号为："+order.getId());      //获得当前订单号
+            config.sessionmap.put("orderinfo",order);
             message="success";
         }catch (Exception e){
             message="error";
@@ -146,6 +196,7 @@ public class OrderController {
             order.setCloseremark(closeremark);
             this.orderService.update(order);
             message="success";
+//            config.sessionmap.put("orderinfo",order);
         }catch (Exception e){
             message="error";
         }finally {

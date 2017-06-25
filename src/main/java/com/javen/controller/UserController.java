@@ -6,10 +6,12 @@ package com.javen.controller;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.service.IUserService;
 import com.javen.util.JsonUtil;
+import com.javen.util.config;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +37,16 @@ public class UserController {
         response.setCharacterEncoding("UTF-8");
         int userId = Integer.parseInt(request.getParameter("id"));
         User user = (User) this.userService.get(userId);
+        ObjectMapper mapper = new ObjectMapper();
+        response.getWriter().write(mapper.writeValueAsString(user));
+        response.getWriter().close();
+    }
+
+    @RequestMapping("/getCurrent")
+    public void getCurrentUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        User user = (User) config.sessionmap.get("userinfo");
         ObjectMapper mapper = new ObjectMapper();
         response.getWriter().write(mapper.writeValueAsString(user));
         response.getWriter().close();
@@ -162,9 +174,11 @@ public class UserController {
             user.settLevel(level);
             user.setLogin(login);
             this.userService.update(user);
+            config.sessionmap.put("userinfo",user);     //更新userinfo
             message="success";
         }catch (Exception e){
             message="error";
+            e.printStackTrace();
         }finally {
             String jsonstring = JsonUtil.msgToJson(message);
             PrintWriter out = response.getWriter();
@@ -175,7 +189,7 @@ public class UserController {
     }
 
     @RequestMapping("/login")
-    public void checkUserIsLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void userLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String message=null;
@@ -184,14 +198,55 @@ public class UserController {
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
-        int size = this.userService.login(user);
+        List<User> list = this.userService.login(user);
+        int size = list.size();
 //        System.out.println("发现"+size+"个用户登录！");
         if (size==1){
             message="success";
+            //创建session对象
+            HttpSession session = request.getSession();
+            //把用户数据保存在session域对象中
+            session.setAttribute("id", ((User)list.get(0)).getId());     //将用户信息存储在session中
+            session.setAttribute("username", username);     //将用户信息存储在session中
+            System.out.println("session:"+session.getAttribute("username")+"sessionID:"+session.getId());
+            config.sessionID=session.getId();   //保存当前sessionID及用户ID
+//            config.userID=list.get(0).getId();
+            config.sessionmap.put(session.getId(),session);
+            config.sessionmap.put("userinfo",list.get(0));
         }
         else{
             message="error";
         }
+        String jsonstring = JsonUtil.msgToJson(message);
+        PrintWriter out = response.getWriter();
+        out.print(jsonstring);
+        out.flush();
+        out.close();
+    }
+
+    @RequestMapping("/islogin")
+    public void checkSession(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("in islogin()!");
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        String message=null;
+//        HttpSession session = request.getSession();
+
+        if (config.sessionID==null || config.sessionID.equals("")){
+            message="error";
+        }
+        else{
+            HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
+            if (session==null || session.getAttribute("username")==null || session.getAttribute("username").equals("")){
+                System.out.println("session为空"+"sessionID:"+session.getId());
+                message="error";
+            }
+            else{
+                message="success";
+                System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
+            }
+        }
+
         String jsonstring = JsonUtil.msgToJson(message);
         PrintWriter out = response.getWriter();
         out.print(jsonstring);

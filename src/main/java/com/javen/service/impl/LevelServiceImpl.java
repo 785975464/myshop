@@ -28,6 +28,8 @@ public class LevelServiceImpl extends BaseServiceImpl implements ILevelService {
         return levelDao;
     }
 
+    public Level getDiscount(int level){ return levelDao.getDiscount(level); }
+
 //    @Resource
 //    private ILevelDao levelDao;
 //

@@ -8,6 +8,9 @@ import java.util.List;
  * Created by Jay on 2017/6/21.
  */
 public interface IOrderService extends IBaseService{
+
+    List<Order> getOrders(int uid);
+
 //    public Order getOrderById(int id);
 //
 //    public List<Order> getAllOrders();

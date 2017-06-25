@@ -24,6 +24,8 @@ public class OrderServiceImpl extends BaseServiceImpl implements IOrderService {
         return orderDao;
     }
 
+    public List<Order> getOrders(int uid){ return orderDao.getOrders(uid);}
+
 //    @Resource
 //    private IOrderDao orderDao;
 //
