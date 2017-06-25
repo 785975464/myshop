@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- 设置为IOrderDao接口方法提供sql语句配置 -->
+<!-- 为这个mapper指定一个唯一的namespace -->
 <mapper namespace="com.javen.dao.IOrderDao">
 
     <select id="get" resultType="Order" parameterType="int">
@@ -11,7 +12,7 @@
     </select>
     <insert id="add" parameterType="Order" useGeneratedKeys="true" keyProperty="id" >
         INSERT INTO orderinfo (uid,pid,datetime,total,solve,solveremark,close,closeremark)
-        VALUES (#{uid},#{pid},#{datetime},#{total},#{solve},#{solveremark},#{close},#{closeremark})
+        VALUES (#{uid},#{product.id},#{datetime},#{total},#{solve},#{solveremark},#{close},#{closeremark})
     </insert>
     <select id="delete" parameterType="int">
         DELETE FROM orderinfo WHERE id = #{id}
@@ -19,7 +20,28 @@
     <select id="update" parameterType="Order">
         UPDATE orderinfo SET uid = #{uid},pid = #{pid},datetime = #{datetime},total = #{total},solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}
     </select>
-    <select id="getOrders" parameterType="int" resultType="Order">
-        SELECT * FROM orderinfo WHERE uid = #{uid}
+    <select id="getOrders" parameterType="int" resultMap="OrderResultMap">
+        SELECT * FROM orderinfo,product WHERE uid = #{uid} AND orderinfo.pid=product.id
     </select>
+    <!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
+    <resultMap type="com.javen.model.Order" id="OrderResultMap">
+        <id property="id" column="id"/>
+        <result property="uid" column="uid"/>
+        <result property="datetime" column="datetime"/>
+        <result property="total" column="total"/>
+        <result property="solve" column="solve"/>
+        <result property="solveremark" column="solveremark"/>
+        <result property="close" column="close"/>
+        <result property="closeremark" column="closeremark"/>
+        <association property="product" javaType="com.javen.model.Product">
+            <id property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="price" column="price"/>
+            <result property="number" column="number"/>
+            <result property="remark" column="remark"/>
+            <result property="xremark" column="xremark"/>
+            <result property="cid" column="cid"/>
+        </association>
+    </resultMap>
+
 </mapper>

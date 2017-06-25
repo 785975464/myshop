@@ -6,8 +6,10 @@ package com.javen.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.model.Order;
+import com.javen.model.Product;
 import com.javen.model.User;
 import com.javen.service.IOrderService;
+import com.javen.service.IProductService;
 import com.javen.util.JsonUtil;
 import com.javen.util.config;
 import org.springframework.stereotype.Controller;
@@ -31,6 +33,8 @@ public class OrderController {
 
     @Resource
     private IOrderService orderService;
+    @Resource
+    private IProductService productService;
 
     @RequestMapping("/get")
     public void getOrderById(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -123,8 +127,9 @@ public class OrderController {
 //            Timestamp datetime = Timestamp.valueOf(request.getParameter("datetime"));
 //            Timestamp datetime = Timestamp.valueOf(df.format(request.getParameter("datetime")));
             double total = Double.parseDouble(request.getParameter("total"));
+            Product product=(Product) productService.get(pid);  //获取当前订单物品
             order.setUid(uid);
-            order.setPid(pid);
+            order.setProduct(product);
             order.setDatetime(datetime);
             order.setTotal(total);
             order.setSolve(-1);    //默认为-1
@@ -187,7 +192,7 @@ public class OrderController {
             String closeremark = request.getParameter("closeremark");
             order.setId(id);
             order.setUid(uid);
-            order.setPid(pid);
+//            order.setPid(pid);
             order.setDatetime(datetime);
             order.setTotal(total);
             order.setSolve(solve);

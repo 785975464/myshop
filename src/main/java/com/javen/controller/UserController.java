@@ -200,13 +200,15 @@ public class UserController {
         user.setPassword(password);
         List<User> list = this.userService.login(user);
         int size = list.size();
+        User u=null;
 //        System.out.println("发现"+size+"个用户登录！");
         if (size==1){
             message="success";
             //创建session对象
             HttpSession session = request.getSession();
             //把用户数据保存在session域对象中
-            session.setAttribute("id", ((User)list.get(0)).getId());     //将用户信息存储在session中
+            u = list.get(0);
+            session.setAttribute("id", u.getId());     //将用户信息存储在session中
             session.setAttribute("username", username);     //将用户信息存储在session中
             System.out.println("session:"+session.getAttribute("username")+"sessionID:"+session.getId());
             config.sessionID=session.getId();   //保存当前sessionID及用户ID
@@ -217,6 +219,28 @@ public class UserController {
         else{
             message="error";
         }
+        String listjson = JsonUtil.objectToJson(u);
+        String jsonstring="{\"info\":\""+message+"\",\"data\":"+listjson+"}";
+        PrintWriter out = response.getWriter();
+        out.print(jsonstring);
+        out.flush();
+        out.close();
+    }
+
+    @RequestMapping("/loginout")
+    public void userLoginOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        if (config.sessionID!=null){
+            HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
+            session.invalidate();
+        }
+        config.sessionmap.remove(config.sessionID);         //清除session信息
+        config.sessionmap.remove("userinfo");         //清除用户信息
+        config.sessionmap.remove("orderinfo");        //清除订单信息
+        config.sessionID=null;
+        String message="success";
         String jsonstring = JsonUtil.msgToJson(message);
         PrintWriter out = response.getWriter();
         out.print(jsonstring);
