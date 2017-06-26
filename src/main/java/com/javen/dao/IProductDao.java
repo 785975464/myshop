@@ -10,6 +10,9 @@ import java.util.List;
 public interface IProductDao extends IBaseDao<Product,Integer>{
 
     List<Product> queryByCategoryId(int id);
+
+    List<Product> getProducts();
+
 //    public Product getProductById(int id);
 //
 //    public List<Product> getAllProducts();

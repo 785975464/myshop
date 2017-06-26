@@ -76,6 +76,49 @@ public class OrderController {
         }
     }
 
+    @RequestMapping("/getOrdersByStatus")   //销售商用于处理未处理的订单
+    public void getOrdersByStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        int solve;
+        try {
+            solve = Integer.parseInt(request.getParameter("solve"));
+        }catch (Exception e){
+            solve=-1;
+        }
+        List<Order> listOrder = orderService.getOrdersByStatus(solve);
+        String listjson = JsonUtil.listToJson(listOrder);
+        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listOrder.size()+",\"recordsFiltered\":"+listOrder.size()+"}";
+        System.out.println("jsonstring:"+jsonstring);
+        PrintWriter out = response.getWriter();
+        out.print(jsonstring);
+        out.flush();
+        out.close();
+    }
+
+    @RequestMapping("/getOrders/close")        //普通用户用于处理未完成的订单
+    public void getOrdersCompleted(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        boolean close;
+        int uid;
+        try {
+            close = Boolean.parseBoolean(request.getParameter("close"));
+        }catch (Exception e){
+            close=false;
+        }
+        User user = (User) config.sessionmap.get("userinfo");
+        uid = user.getId();
+        List<Order> listOrder = orderService.getOrdersByCloseStatus(close,uid);
+        String listjson = JsonUtil.listToJson(listOrder);
+        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listOrder.size()+",\"recordsFiltered\":"+listOrder.size()+"}";
+        System.out.println("jsonstring:"+jsonstring);
+        PrintWriter out = response.getWriter();
+        out.print(jsonstring);
+        out.flush();
+        out.close();
+    }
+
     @RequestMapping("/query")
     public void getAllOrders(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Order> listOrder =  orderService.query();
@@ -192,6 +235,8 @@ public class OrderController {
             String closeremark = request.getParameter("closeremark");
             order.setId(id);
             order.setUid(uid);
+            Product product = (Product) productService.get(pid);
+            order.setProduct(product);
 //            order.setPid(pid);
             order.setDatetime(datetime);
             order.setTotal(total);
@@ -204,6 +249,7 @@ public class OrderController {
 //            config.sessionmap.put("orderinfo",order);
         }catch (Exception e){
             message="error";
+            e.printStackTrace();
         }finally {
             String jsonstring = JsonUtil.msgToJson(message);
             PrintWriter out = response.getWriter();

@@ -11,6 +11,8 @@ public interface IProductService extends IBaseService{
 
     List<Product> queryByCategoryId(int id);
 
+    List<Product> getProducts();
+
 //    public Product getProductById(int id);
 //
 //    public List<Product> getAllProducts();

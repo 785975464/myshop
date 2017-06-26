@@ -5,7 +5,9 @@ package com.javen.controller;
  */
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.javen.model.Category;
 import com.javen.model.Product;
+import com.javen.service.ICategoryService;
 import com.javen.service.IProductService;
 import com.javen.util.JsonUtil;
 import org.springframework.stereotype.Controller;
@@ -26,7 +28,9 @@ public class ProductController {
 
     @Resource
     private IProductService productService;
-    // /user/test?id=1
+    @Resource
+    private ICategoryService categoryService;
+
     @RequestMapping("/get")
     public void selectCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
@@ -37,6 +41,21 @@ public class ProductController {
         ObjectMapper mapper = new ObjectMapper();
         response.getWriter().write(mapper.writeValueAsString(product));
         response.getWriter().close();
+    }
+
+    @RequestMapping("/getProducts")
+    public void getProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        List<Product> listProduct = productService.getProducts();
+        String listjson = JsonUtil.listToJson(listProduct);
+        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
+        System.out.println("jsonstring:"+jsonstring);
+        PrintWriter out = response.getWriter();
+        out.print(jsonstring);
+        out.flush();
+        out.close();
     }
 
     @RequestMapping("/query")
@@ -81,7 +100,7 @@ public class ProductController {
         try {
             Product product = new Product();
             String name = request.getParameter("name");
-    //        String pic = request.getParameter("pic");
+//            String cid = request.getParameter("cid");
             String remark = request.getParameter("remark");
             String xremark = request.getParameter("xremark");
     //        String date = request.getParameter("date");
@@ -90,14 +109,14 @@ public class ProductController {
                 price = Double.parseDouble(request.getParameter("price"));
             }catch (Exception e){
                 price=0;
-                e.printStackTrace();
+//                e.printStackTrace();
             }
             int number;
             try {
                 number = Integer.parseInt(request.getParameter("number"));
             }catch (Exception e){
                 number=0;
-                e.printStackTrace();
+//                e.printStackTrace();
             }
             int cid;    //默认分类cid=-1
             try {
@@ -111,7 +130,9 @@ public class ProductController {
             product.setNumber(number);
             product.setRemark(remark);
             product.setXremark(xremark);
-            product.setCid(cid);
+            Category category=(Category) categoryService.get(cid);
+            product.setCategory(category);
+//            product.setCid(cid);
             this.productService.add(product);
             message="success";
         }catch (Exception e){
@@ -161,13 +182,14 @@ public class ProductController {
             String remark = request.getParameter("remark");
             String xremark = request.getParameter("xremark");
             int cid = Integer.parseInt(request.getParameter("cid"));
+            Category category=(Category) categoryService.get(cid);
             product.setId(id);
             product.setName(name);
             product.setPrice(price);
             product.setNumber(number);
             product.setRemark(remark);
             product.setXremark(xremark);
-            product.setCid(cid);
+            product.setCategory(category);
             this.productService.update(product);
             message="success";
         }catch (Exception e){

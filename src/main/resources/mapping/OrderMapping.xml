@@ -18,10 +18,19 @@
         DELETE FROM orderinfo WHERE id = #{id}
     </select>
     <select id="update" parameterType="Order">
-        UPDATE orderinfo SET uid = #{uid},pid = #{pid},datetime = #{datetime},total = #{total},solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}
+        UPDATE orderinfo SET uid = #{uid},pid = #{product.id},datetime = #{datetime},total = #{total},solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}
     </select>
     <select id="getOrders" parameterType="int" resultMap="OrderResultMap">
-        SELECT * FROM orderinfo,product WHERE uid = #{uid} AND orderinfo.pid=product.id
+        SELECT *,product.id AS productid,category.id AS categoryid FROM orderinfo,product,category
+        WHERE uid = #{uid} AND orderinfo.pid=product.id AND product.cid=category.id
+    </select>
+    <select id="getOrdersByStatus" parameterType="int" resultMap="OrderResultMap">
+        SELECT *,product.id AS productid,category.id AS categoryid FROM orderinfo,product,category
+        WHERE solve = #{solve} AND orderinfo.pid=product.id AND product.cid=category.id
+    </select>
+    <select id="getOrdersByCloseStatus" resultMap="OrderResultMap">  <!--传递多参数-->
+        SELECT *,product.id AS productid,category.id AS categoryid FROM orderinfo,product,category
+        WHERE close = #{0} AND uid = #{1} AND orderinfo.pid=product.id AND product.cid=category.id
     </select>
     <!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
     <resultMap type="com.javen.model.Order" id="OrderResultMap">
@@ -34,13 +43,17 @@
         <result property="close" column="close"/>
         <result property="closeremark" column="closeremark"/>
         <association property="product" javaType="com.javen.model.Product">
-            <id property="id" column="id"/>
+            <id property="id" column="productid"/>
             <result property="name" column="name"/>
             <result property="price" column="price"/>
             <result property="number" column="number"/>
             <result property="remark" column="remark"/>
             <result property="xremark" column="xremark"/>
-            <result property="cid" column="cid"/>
+            <!--<result property="cid" column="cid"/>-->
+            <association property="category" javaType="com.javen.model.Category">
+                <id property="id" column="categoryid"/>
+                <result property="type" column="type"/>
+            </association>
         </association>
     </resultMap>
 

@@ -9,24 +9,40 @@
         <result property="password" column="password"/>
         <result property="age" column="age"/>
     </resultMap>-->
-    <select id="get" resultType="Product" parameterType="int">
+    <select id="get" parameterType="int" resultType="Product" >
         SELECT * FROM product WHERE id = #{id}
     </select>
-    <select id="query" resultType="Product">
-        SELECT * FROM product
+    <select id="query" resultMap="ProductResultMap">
+        SELECT * FROM product,category WHERE product.cid=category.id
     </select>
     <select id="add" parameterType="Product">
         INSERT INTO product (name, price, number, remark, xremark, cid)
-        VALUES (#{name},#{price},#{number},#{remark},#{xremark},#{cid})
+        VALUES (#{name},#{price},#{number},#{remark},#{xremark},#{category.id})
     </select>
     <select id="delete" parameterType="int">
         DELETE FROM product WHERE id = #{id}
     </select>
     <select id="update" parameterType="Product">
-        UPDATE product SET name = #{name},price = #{price},number = #{number},remark = #{remark},xremark = #{xremark},cid = #{cid}
+        UPDATE product SET name = #{name},price = #{price},number = #{number},remark = #{remark},xremark = #{xremark},cid = #{category.id}
         WHERE id = #{id}
     </select>
     <select id="queryByCategoryId" resultType="Product" parameterType="int">
         SELECT * FROM product WHERE cid = #{id}
     </select>
+    <select id="getProducts" resultMap="ProductResultMap">
+        SELECT *,category.id AS categoryid FROM product,category WHERE product.cid=category.id
+    </select>
+    <!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
+    <resultMap type="com.javen.model.Product" id="ProductResultMap">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="price" column="price"/>
+        <result property="number" column="number"/>
+        <result property="remark" column="remark"/>
+        <result property="xremark" column="xremark"/>
+        <association property="category" javaType="com.javen.model.Category">
+            <id property="id" column="categoryid"/>
+            <result property="type" column="type"/>
+        </association>
+    </resultMap>
 </mapper>

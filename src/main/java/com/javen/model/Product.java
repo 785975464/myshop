@@ -16,7 +16,8 @@ public class Product {
     private String remark;
     private String xremark;
 //    private Timestamp date;
-    private Integer cid;
+//    private Integer cid;
+    private Category category;
 
     public Integer getId() {
         return id;
@@ -82,12 +83,21 @@ public class Product {
 //        this.date = date;
 //    }
 
-    public Integer getCid() {
-        return cid;
+//    public Integer getCid() {
+//        return cid;
+//    }
+//
+//    public void setCid(Integer cid) {
+//        this.cid = cid;
+//    }
+
+
+    public Category getCategory() {
+        return category;
     }
 
-    public void setCid(Integer cid) {
-        this.cid = cid;
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     @Override
@@ -101,7 +111,8 @@ public class Product {
                 ", remark='" + remark + '\'' +
                 ", xremark='" + xremark + '\'' +
 //                ", date=" + date +
-                ", cid=" + cid +
+//                ", cid=" + cid +
+                ", category=" +category +
                 '}';
     }
 }
