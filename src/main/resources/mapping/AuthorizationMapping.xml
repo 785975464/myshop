@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 设置为IUserDao接口方法提供sql语句配置 -->
+<mapper namespace="com.javen.dao.IAuthorizationDao">
+
+    <select id="get" resultType="Authorization" parameterType="int">
+        SELECT * FROM authorization WHERE id = #{id}
+    </select>
+    <select id="query" resultType="Authorization">
+        SELECT * FROM authorization
+    </select>
+    <select id="add" parameterType="Authorization">
+        INSERT INTO authorization (role,auth) VALUES (#{role},#{auth})
+    </select>
+    <select id="delete" parameterType="int">
+        DELETE FROM authorization WHERE id = #{id}
+    </select>
+    <select id="update" parameterType="Authorization">
+        UPDATE authorization SET role = #{role},auth = #{auth} WHERE id = #{id}
+    </select>
+    <select id="getByRole" resultType="Authorization" parameterType="int">
+        SELECT * FROM authorization WHERE role = #{role}
+    </select>
+</mapper>

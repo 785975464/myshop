@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -144,14 +145,32 @@ public class OrderController {
         //添加订单前先验证用户
         String message="";
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        if (config.sessionID==null || config.sessionID.equals("")){
+//        if (config.sessionID==null || config.sessionID.equals("")){
+//            message="none";
+//        }
+//        HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
+        HttpSession session=null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies!=null && cookies.length>0) {
+            for (Cookie c : cookies) {
+                System.out.println(c.getName() + "--->" + c.getValue());
+                if (c.getName().equals("sessionid")){
+                    String sessionid=c.getValue();
+                    session = (HttpSession)config.sessionmap.get(sessionid);
+                    if (session==null){
+                        System.out.println("session为空！");
+                        message="none";
+                    }
+                    break;
+                }
+            }
+            System.out.println("未找到用户cookie！");
             message="none";
         }
-        HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
-        if (session==null || session.getAttribute("username")==null || session.getAttribute("username").equals("")){
-            System.out.println("session为空");
-            message="none";
-        }
+//        if (session==null || session.getAttribute("username")==null || session.getAttribute("username").equals("")){
+//            System.out.println("session为空");
+//            message="none";
+//        }
         if (message.equals("none")){
             String jsonstring = JsonUtil.msgToJson(message);
             PrintWriter out = response.getWriter();
@@ -160,8 +179,8 @@ public class OrderController {
             out.close();
             return;
         }
-        System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
         try {
+            System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
             Order order = new Order();
             int uid = Integer.parseInt(session.getAttribute("id").toString());
             int pid = Integer.parseInt(request.getParameter("pid"));

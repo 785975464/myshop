@@ -4,6 +4,7 @@ package com.javen.controller;
  * Created by Jay on 2017/6/21.
  */
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -55,8 +56,9 @@ public class UserController {
     @RequestMapping("/query")
     public void getAllUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
 //        response.setHeader("Access-Control-Allow-Origin", "*");
+
         List<User> listUser =  userService.query();
-        System.out.println("getAllUsers! listUser.size():"+listUser.size());
+        System.out.println("listUser.size():"+listUser.size());
         for (int i=0;i<listUser.size();i++){
             System.out.println(listUser.get(i).toString());
         }
@@ -201,6 +203,7 @@ public class UserController {
         List<User> list = this.userService.login(user);
         int size = list.size();
         User u=null;
+//        String sessionid=null;
 //        System.out.println("发现"+size+"个用户登录！");
         if (size==1){
             message="success";
@@ -210,9 +213,14 @@ public class UserController {
             u = list.get(0);
             session.setAttribute("id", u.getId());     //将用户信息存储在session中
             session.setAttribute("username", username);     //将用户信息存储在session中
-            System.out.println("session:"+session.getAttribute("username")+"sessionID:"+session.getId());
-            config.sessionID=session.getId();   //保存当前sessionID及用户ID
-//            config.userID=list.get(0).getId();
+            System.out.println("session:"+session.getAttribute("id")+session.getAttribute("username")+" sessionID:"+session.getId());
+//            config.sessionID=session.getId();   //保存当前sessionID及用户ID
+//            sessionid=session.getId();      //保存当前sessionID并返回前端
+            //自动登录cookie
+            Cookie sessionid = new Cookie("sessionid", session.getId());
+            sessionid.setMaxAge(3600);  //过期时间1小时
+            sessionid.setPath("/");
+            response.addCookie(sessionid);
             config.sessionmap.put(session.getId(),session);
             config.sessionmap.put("userinfo",list.get(0));
         }
@@ -229,17 +237,45 @@ public class UserController {
 
     @RequestMapping("/loginout")
     public void userLoginOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("loginout!");
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-
-        if (config.sessionID!=null){
-            HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
-            session.invalidate();
+//删除登录cookie
+        Cookie[] cookies = request.getCookies();
+        if (cookies!=null && cookies.length>0) {
+            for (Cookie c : cookies) {
+                System.out.println(c.getName() + "--->" + c.getValue());
+                if (c.getName().equals("sessionid")){
+                    String sessionid=c.getValue();
+                    HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
+                    if (session==null){
+                        System.out.println("session为空！");
+                    }
+                    else {
+                        System.out.println("session不为空！");
+                        session.invalidate();
+                    }
+                    break;
+                }
+            }
+            System.out.println("cookie遍历结束！");
         }
-        config.sessionmap.remove(config.sessionID);         //清除session信息
+//        User user = (User) config.sessionmap.get("userinfo");
+//        Cookie userNameCookie = new Cookie("sessionid", user.getUserName());
+//        Cookie passwordCookie = new Cookie("loginPassword", loginUser.getPassword());
+//        userNameCookie.setMaxAge(0);
+//        userNameCookie.setPath("/");
+//        passwordCookie.setMaxAge(0);
+//        passwordCookie.setPath("/");
+//        response.addCookie(userNameCookie);
+//        if (config.sessionID!=null){
+//            HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
+//            session.invalidate();
+//        }
+//        config.sessionmap.remove(config.sessionID);         //清除session信息
         config.sessionmap.remove("userinfo");         //清除用户信息
         config.sessionmap.remove("orderinfo");        //清除订单信息
-        config.sessionID=null;
+//        config.sessionID=null;
         String message="success";
         String jsonstring = JsonUtil.msgToJson(message);
         PrintWriter out = response.getWriter();
@@ -248,33 +284,38 @@ public class UserController {
         out.close();
     }
 
-    @RequestMapping("/islogin")
-    public void checkSession(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("in islogin()!");
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String message=null;
-//        HttpSession session = request.getSession();
+//    @RequestMapping("/islogin")
+//    public void checkSession(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        System.out.println("in islogin()!");
+//        request.setCharacterEncoding("UTF-8");
+//        response.setCharacterEncoding("UTF-8");
+//        String message=null;
+////        HttpSession session = request.getSession();
+//
+//        if (config.sessionID==null || config.sessionID.equals("")){
+//            message="error";
+//        }
+//        else{
+//            HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
+//            if (session==null || session.getAttribute("username")==null || session.getAttribute("username").equals("")){
+//                System.out.println("session为空"+"sessionID:"+session.getId());
+//                message="error";
+//            }
+//            else{
+//                message="success";
+//                System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
+//            }
+//        }
+//        String jsonstring = JsonUtil.msgToJson(message);
+//        PrintWriter out = response.getWriter();
+//        out.print(jsonstring);
+//        out.flush();
+//        out.close();
+//    }
 
-        if (config.sessionID==null || config.sessionID.equals("")){
-            message="error";
-        }
-        else{
-            HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
-            if (session==null || session.getAttribute("username")==null || session.getAttribute("username").equals("")){
-                System.out.println("session为空"+"sessionID:"+session.getId());
-                message="error";
-            }
-            else{
-                message="success";
-                System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
-            }
-        }
-
-        String jsonstring = JsonUtil.msgToJson(message);
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
+    @RequestMapping("/test")
+    public void checkTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("in checkTest()!");
     }
+
 }

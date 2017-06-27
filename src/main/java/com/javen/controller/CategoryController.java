@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -48,8 +49,8 @@ public class CategoryController {
 
     @RequestMapping("/query")
     public void getAllCategorys(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("getAllCategorys!");
         List<Category> listCategory =  categoryService.query();
-//        System.out.println("getAllCategorys! listCategory.size():"+listCategory.size());
         response.setCharacterEncoding("UTF-8");
         String listjson = JsonUtil.listToJson(listCategory);
         String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listCategory.size()+",\"recordsFiltered\":"+listCategory.size()+"}";

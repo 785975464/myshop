@@ -20,8 +20,11 @@ public class CrossFilter extends OncePerRequestFilter {     //允许跨域过滤
             response.addHeader("Access-Control-Allow-Origin","*");
             response.addHeader("Access-Control-Allow-Headers","Content-Type");
             response.addHeader("Access-Control-Max-Age","1800");
+            response.addHeader("Access-Control-Expose-Headers","REDIRECT");     //允许前台跨域访问REDIRECT
+            response.addHeader("Access-Control-Expose-Headers","CONTENTPATH");     //允许前台跨域访问CONTENTPATH
 //            System.out.println("发现一次跨域访问！");
 //        }
+//        System.out.println("发现一次跨域访问！"+request.getRequestURI());
         filterChain.doFilter(request,response);
     }
 }

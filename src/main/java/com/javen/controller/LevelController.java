@@ -70,8 +70,10 @@ public class LevelController {
             Level level = new Level();
             int l = Integer.parseInt(request.getParameter("level"));
             double discount = Double.parseDouble(request.getParameter("discount"));
+            int credit = Integer.parseInt(request.getParameter("credit"));
             level.setLevel(l);
             level.setDiscount(discount);
+            level.setCredit(credit);
             this.levelService.add(level);
             message="success";
         }catch (Exception e){
@@ -117,9 +119,11 @@ public class LevelController {
             System.out.println("updateLevel! id="+id);
             int l = Integer.parseInt(request.getParameter("level"));
             double discount = Double.parseDouble(request.getParameter("discount"));
+            int credit = Integer.parseInt(request.getParameter("credit"));
             level.setId(id);
             level.setLevel(l);
             level.setDiscount(discount);
+            level.setCredit(credit);
             this.levelService.update(level);
             message="success";
         }catch (Exception e){

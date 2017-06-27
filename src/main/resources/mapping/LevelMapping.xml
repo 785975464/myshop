@@ -10,7 +10,7 @@
         SELECT * FROM level
     </select>
     <select id="add" parameterType="Level">
-        INSERT INTO level (level,discount) VALUES (#{level},#{discount})
+        INSERT INTO level (level,discount,credit) VALUES (#{level},#{discount},#{credit})
     </select>
     <select id="delete" parameterType="int">
         DELETE FROM level WHERE id = #{id}
