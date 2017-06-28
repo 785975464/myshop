@@ -6,24 +6,19 @@ package com.javen.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.model.Category;
-import com.javen.model.User;
 import com.javen.service.ICategoryService;
-import com.javen.service.IUserService;
 import com.javen.util.JsonUtil;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.Resource;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Controller

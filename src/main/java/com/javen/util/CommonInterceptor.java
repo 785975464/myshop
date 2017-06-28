@@ -28,21 +28,48 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
+//        Cookie[] cookies = request.getCookies();
+//        System.out.println("cookies:"+cookies);
+//        if(cookies!=null){
+//            System.out.println("cookies.length:"+cookies.length);
+//        }
+//        if (cookies!=null && cookies.length>0) {
+//            for (Cookie c : cookies) {
+//                System.out.println(c.getName() + "--->" + c.getValue());
+//                if (c.getName().equals("sessionid")) {
+//                    String sessionid = c.getValue();
+//                    HttpSession session = (HttpSession) config.sessionmap.get(sessionid);
+//                    if (session == null) {
+//                        System.out.println("session为空！");
+////                        return false;
+//                    } else {
+//                        System.out.println("session不为空！");
+////                        return true;
+//                    }
+//                }
+//            }
+//        }
+
 //        if ("GET".equalsIgnoreCase(request.getMethod())) {
 //            RequestUtil.saveRequest();
 //        }
         String requestUri = request.getRequestURI();
-//        String contextPath = request.getContextPath();
-//        String url = requestUri.substring(contextPath.length());
-
+//
         System.out.println("拦截器：requestUri:"+requestUri);
         if (requestUri.equals(config.FrontPageUrl) || requestUri.indexOf("indexpage")>0 || requestUri.indexOf("login")>0){
             System.out.println("访问首页或login！");
             return true;
         }
+        if (requestUri.indexOf("query")>0 || requestUri.indexOf("getOrdersBy")>0 ){
+            System.out.println("访问query！");
+            return true;
+        }
         boolean flag=true;
         Cookie[] cookies = request.getCookies();
         System.out.println("cookies:"+cookies);
+        if(cookies!=null){
+            System.out.println("cookies.length:"+cookies.length);
+        }
         if (cookies!=null && cookies.length>0) {
             for (Cookie c : cookies) {
                 System.out.println(c.getName() + "--->" + c.getValue());
@@ -53,7 +80,6 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
                         System.out.println("session为空！");
                         flag=false;
                         break;
-//                        return false;
                     }
                     else {
                         System.out.println("session不为空！");
@@ -65,7 +91,6 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
             }
             System.out.println("cookie遍历结束！");
             flag=false;
-//            return false;
         }
         else {
             System.out.println("不存在cookie！");
@@ -82,6 +107,7 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
+//        return true;
     }
 
     /**

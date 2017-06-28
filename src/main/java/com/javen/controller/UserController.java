@@ -47,10 +47,39 @@ public class UserController {
     public void getCurrentUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        User user = (User) config.sessionmap.get("userinfo");
-        ObjectMapper mapper = new ObjectMapper();
-        response.getWriter().write(mapper.writeValueAsString(user));
-        response.getWriter().close();
+
+        Cookie[] cookies = request.getCookies();    //从用户的cookie中取出用户信息
+        System.out.println("getCurrentUser! cookies:"+cookies);
+        User user=null;
+        if (cookies!=null && cookies.length>0) {
+            for (Cookie c : cookies) {
+                System.out.println(c.getName() + "--->" + c.getValue());
+                if (c.getName().equals("sessionid")) {
+                    String sessionid = c.getValue();
+                    HttpSession session = (HttpSession) config.sessionmap.get(sessionid);
+                    if (session == null) {
+                        System.out.println("session为空！");
+                    } else {
+                        System.out.println("session不为空！");
+                        int id = (Integer) session.getAttribute("id");
+                        user = (User) userService.get(id);
+                    }
+                    break;
+                }
+            }
+        }
+//        User user = (User) config.sessionmap.get("userinfo");
+        System.out.println("当前user信息："+user.getId()+" "+user.getUsername());
+        String callback = request.getParameter("callback");
+        String listjson = JsonUtil.objectToJson(user);
+        String jsonstring=callback+"("+"{\"data\":"+listjson+"}"+")";
+        PrintWriter out = response.getWriter();
+        out.print(jsonstring);
+        out.flush();
+        out.close();
+//        ObjectMapper mapper = new ObjectMapper();
+//        response.getWriter().write(mapper.writeValueAsString(user));
+//        response.getWriter().close();
     }
 
     @RequestMapping("/query")
@@ -59,9 +88,9 @@ public class UserController {
 
         List<User> listUser =  userService.query();
         System.out.println("listUser.size():"+listUser.size());
-        for (int i=0;i<listUser.size();i++){
-            System.out.println(listUser.get(i).toString());
-        }
+//        for (int i=0;i<listUser.size();i++){
+//            System.out.println(listUser.get(i).toString());
+//        }
         response.setCharacterEncoding("UTF-8");
         String listjson = JsonUtil.listToJson(listUser);
         String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listUser.size()+",\"recordsFiltered\":"+listUser.size()+"}";
@@ -94,14 +123,14 @@ public class UserController {
                 role = Integer.parseInt(request.getParameter("role"));
             }catch (Exception e){
                 role=1;
-                e.printStackTrace();
+//                e.printStackTrace();
             }
             int level;    //默认等级level=0，最低等级
             try {
                 level = Integer.parseInt(request.getParameter("level"));
             }catch (Exception e){
                 level=0;
-                e.printStackTrace();
+//                e.printStackTrace();
             }
             user.setUsername(username);
             user.setPassword(password);
@@ -117,7 +146,9 @@ public class UserController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
+//            String jsonstring = JsonUtil.msgToJson(message);
+            String callback = request.getParameter("callback");
+            String jsonstring=callback+"({\"msg\":\""+message+"\"})";
             PrintWriter out = response.getWriter();
             out.print(jsonstring);
             out.flush();
@@ -138,7 +169,9 @@ public class UserController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
+//            String jsonstring = JsonUtil.msgToJson(message);
+            String callback = request.getParameter("callback");
+            String jsonstring=callback+"({\"msg\":\""+message+"\"})";
             PrintWriter out = response.getWriter();
             out.print(jsonstring);
             out.flush();
@@ -157,9 +190,16 @@ public class UserController {
             int id = Integer.parseInt(request.getParameter("id"));
             System.out.println("updateUser! id="+id);
             String username = request.getParameter("username");
+            username = java.net.URLDecoder.decode(username, "UTF-8");  //前台编码
+//            System.out.println("username:"+username+" "+java.net.URLDecoder.decode(username, "UTF-8")+
+//                        " "+new String(username.getBytes("UTF-8"),"ISO-8859-1")+
+//                        " "+new String(username.getBytes("UTF-8"),"GB2312")+
+//                        " "+new String(username.getBytes("UTF-8"),"GBK")+
+//                        " "+new String(username.getBytes("UTF-8"),"Unicode"));
             String password = request.getParameter("password");
             Date birthday = sdf.parse(request.getParameter("birthday"));
             String gender = request.getParameter("gender");
+            gender = java.net.URLDecoder.decode(gender, "UTF-8");  //前台编码
             String phone = request.getParameter("phone");
             String email = request.getParameter("email");
             int role = Integer.parseInt(request.getParameter("role"));
@@ -176,13 +216,15 @@ public class UserController {
             user.settLevel(level);
             user.setLogin(login);
             this.userService.update(user);
-            config.sessionmap.put("userinfo",user);     //更新userinfo
+//            config.sessionmap.put("userinfo",user);     //更新userinfo
             message="success";
         }catch (Exception e){
             message="error";
             e.printStackTrace();
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
+//            String jsonstring = JsonUtil.msgToJson(message);
+            String callback = request.getParameter("callback");
+            String jsonstring=callback+"({\"msg\":\""+message+"\"})";
             PrintWriter out = response.getWriter();
             out.print(jsonstring);
             out.flush();
@@ -203,7 +245,7 @@ public class UserController {
         List<User> list = this.userService.login(user);
         int size = list.size();
         User u=null;
-//        String sessionid=null;
+        String sessionid=null;
 //        System.out.println("发现"+size+"个用户登录！");
         if (size==1){
             message="success";
@@ -211,16 +253,17 @@ public class UserController {
             HttpSession session = request.getSession();
             //把用户数据保存在session域对象中
             u = list.get(0);
+            System.out.println("用户"+u.getUsername()+"已登录成功！");
             session.setAttribute("id", u.getId());     //将用户信息存储在session中
             session.setAttribute("username", username);     //将用户信息存储在session中
             System.out.println("session:"+session.getAttribute("id")+session.getAttribute("username")+" sessionID:"+session.getId());
 //            config.sessionID=session.getId();   //保存当前sessionID及用户ID
-//            sessionid=session.getId();      //保存当前sessionID并返回前端
+            sessionid=session.getId();      //保存当前sessionID并返回前端
             //自动登录cookie
-            Cookie sessionid = new Cookie("sessionid", session.getId());
-            sessionid.setMaxAge(3600);  //过期时间1小时
-            sessionid.setPath("/");
-            response.addCookie(sessionid);
+//            Cookie sessionid = new Cookie("sessionid", session.getId());
+//            sessionid.setMaxAge(3600);  //过期时间1小时
+//            sessionid.setPath("/");
+//            response.addCookie(sessionid);
             config.sessionmap.put(session.getId(),session);
             config.sessionmap.put("userinfo",list.get(0));
         }
@@ -228,7 +271,7 @@ public class UserController {
             message="error";
         }
         String listjson = JsonUtil.objectToJson(u);
-        String jsonstring="{\"info\":\""+message+"\",\"data\":"+listjson+"}";
+        String jsonstring="{\"info\":\""+message+"\",\"data\":"+listjson+",\"sessionid\":\"" + sessionid + "\"}";
         PrintWriter out = response.getWriter();
         out.print(jsonstring);
         out.flush();
