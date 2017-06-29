@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSession;
  * Created by Jay on 2017/6/27.
  */
 public class CommonInterceptor extends HandlerInterceptorAdapter {
-    public static final String LAST_PAGE = "com.alibaba.lastPage";
+//    public static final String LAST_PAGE = "com.alibaba.lastPage";
 
     /**
      * 在业务处理器处理请求之前被调用
@@ -56,11 +56,17 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
         String requestUri = request.getRequestURI();
 //
         System.out.println("拦截器：requestUri:"+requestUri);
+        if (requestUri.equals("/myshop/user/check")){
+            return true;
+        }
+//        if (requestUri.equals("/myshop/user/loginout")){
+//            return true;
+//        }
         if (requestUri.equals(config.FrontPageUrl) || requestUri.indexOf("indexpage")>0 || requestUri.indexOf("login")>0){
             System.out.println("访问首页或login！");
             return true;
         }
-        if (requestUri.indexOf("query")>0 || requestUri.indexOf("getOrdersBy")>0 ){
+        if (requestUri.indexOf("query")>0 || requestUri.indexOf("getOrders")>0 ){
             System.out.println("访问query！");
             return true;
         }
@@ -102,12 +108,9 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
         else {
             System.out.println("重定向到:" + config.FrontPageUrl);
             //告诉ajax需要重定向
-            response.setHeader("REDIRECT", "REDIRECT");             //注意需要配置报头可访问
-            response.setHeader("CONTENTPATH", config.FrontPageUrl);     //告诉ajax重定向的路径
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
-//        return true;
     }
 
     /**

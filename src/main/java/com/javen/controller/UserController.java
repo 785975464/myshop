@@ -8,13 +8,13 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.ws.spi.http.HttpContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.service.IUserService;
 import com.javen.util.JsonUtil;
-import com.javen.util.config;
+import com.javen.util.*;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.javen.model.User;
 
@@ -48,39 +48,41 @@ public class UserController {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 
-        Cookie[] cookies = request.getCookies();    //从用户的cookie中取出用户信息
-        System.out.println("getCurrentUser! cookies:"+cookies);
-        User user=null;
-        if (cookies!=null && cookies.length>0) {
-            for (Cookie c : cookies) {
-                System.out.println(c.getName() + "--->" + c.getValue());
-                if (c.getName().equals("sessionid")) {
-                    String sessionid = c.getValue();
-                    HttpSession session = (HttpSession) config.sessionmap.get(sessionid);
-                    if (session == null) {
-                        System.out.println("session为空！");
-                    } else {
-                        System.out.println("session不为空！");
-                        int id = (Integer) session.getAttribute("id");
-                        user = (User) userService.get(id);
-                    }
-                    break;
-                }
-            }
-        }
+//        Cookie[] cookies = request.getCookies();    //从用户的cookie中取出用户信息
+//        System.out.println("getCurrentUser! cookies:"+cookies);
+//        User user=null;
+//        if (cookies!=null && cookies.length>0) {
+//            for (Cookie c : cookies) {
+//                System.out.println(c.getName() + "--->" + c.getValue());
+//                if (c.getName().equals("sessionid")) {
+//                    String sessionid = c.getValue();
+//                    HttpSession session = (HttpSession) config.sessionmap.get(sessionid);
+//                    if (session == null) {
+//                        System.out.println("session为空！");
+//                    } else {
+//                        System.out.println("session不为空！");
+//                        int id = (Integer) session.getAttribute("id");
+//                        user = (User) userService.get(id);
+//                    }
+//                    break;
+//                }
+//            }
+//        }
 //        User user = (User) config.sessionmap.get("userinfo");
-        System.out.println("当前user信息："+user.getId()+" "+user.getUsername());
-        String callback = request.getParameter("callback");
+//        System.out.println("当前user信息："+user.getId()+" "+user.getUsername());
+        User user = myUtils.getCurrentLocalUser(request);
         String listjson = JsonUtil.objectToJson(user);
-        String jsonstring=callback+"("+"{\"data\":"+listjson+"}"+")";
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
-//        ObjectMapper mapper = new ObjectMapper();
-//        response.getWriter().write(mapper.writeValueAsString(user));
-//        response.getWriter().close();
+        myUtils.printObjectMsg(request,response,listjson);
+//        String callback = request.getParameter("callback");
+//        String listjson = JsonUtil.objectToJson(user);
+//        String jsonstring=callback+"("+"{\"data\":"+listjson+"}"+")";
+//        PrintWriter out = response.getWriter();
+//        out.print(jsonstring);
+//        out.flush();
+//        out.close();
     }
+
+
 
     @RequestMapping("/query")
     public void getAllUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -113,9 +115,16 @@ public class UserController {
         try {
             User user = new User();
             String username = request.getParameter("username");
+            username = java.net.URLDecoder.decode(username, "UTF-8");  //前台编码
             String password = request.getParameter("password");
-            Date birthday = sdf.parse(request.getParameter("birthday"));
+            Date birthday;
+            try {
+                birthday = sdf.parse(request.getParameter("birthday"));
+            }catch (Exception e){
+                birthday=new Date();
+            }
             String gender = request.getParameter("gender");
+            gender = java.net.URLDecoder.decode(gender, "UTF-8");  //前台编码
             String phone = request.getParameter("phone");
             String email = request.getParameter("email");
             int role;     //默认角色role=1，普通用户
@@ -147,12 +156,7 @@ public class UserController {
             message="error";
         }finally {
 //            String jsonstring = JsonUtil.msgToJson(message);
-            String callback = request.getParameter("callback");
-            String jsonstring=callback+"({\"msg\":\""+message+"\"})";
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -170,12 +174,14 @@ public class UserController {
             message="error";
         }finally {
 //            String jsonstring = JsonUtil.msgToJson(message);
-            String callback = request.getParameter("callback");
-            String jsonstring=callback+"({\"msg\":\""+message+"\"})";
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+//            String callback = request.getParameter("callback");
+//            String jsonstring=callback+"({\"msg\":\""+message+"\"})";
+//            PrintWriter out = response.getWriter();
+//            out.print(jsonstring);
+//            out.flush();
+//            out.close();
+            myUtils.printMsg(request,response,message);
+
         }
     }
 
@@ -222,13 +228,7 @@ public class UserController {
             message="error";
             e.printStackTrace();
         }finally {
-//            String jsonstring = JsonUtil.msgToJson(message);
-            String callback = request.getParameter("callback");
-            String jsonstring=callback+"({\"msg\":\""+message+"\"})";
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -256,7 +256,10 @@ public class UserController {
             System.out.println("用户"+u.getUsername()+"已登录成功！");
             session.setAttribute("id", u.getId());     //将用户信息存储在session中
             session.setAttribute("username", username);     //将用户信息存储在session中
-            System.out.println("session:"+session.getAttribute("id")+session.getAttribute("username")+" sessionID:"+session.getId());
+            session.setAttribute("userinfo",u);
+
+            System.out.println( "session:"+session.getAttribute("id")+session.getAttribute("username")+
+                                " sessionID:"+session.getId()+" getRemoteAddr:"+request.getRemoteAddr());
 //            config.sessionID=session.getId();   //保存当前sessionID及用户ID
             sessionid=session.getId();      //保存当前sessionID并返回前端
             //自动登录cookie
@@ -265,7 +268,10 @@ public class UserController {
 //            sessionid.setPath("/");
 //            response.addCookie(sessionid);
             config.sessionmap.put(session.getId(),session);
-            config.sessionmap.put("userinfo",list.get(0));
+            config.userip.put(u.getId(),request.getRemoteAddr());
+//            session.setAttribute("userip",request.getRemoteAddr()); //获取客户端IP
+
+//            config.sessionmap.put("userinfo",list.get(0));
         }
         else{
             message="error";
@@ -283,25 +289,31 @@ public class UserController {
         System.out.println("loginout!");
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
+        String sessionid=null;
 //删除登录cookie
         Cookie[] cookies = request.getCookies();
         if (cookies!=null && cookies.length>0) {
             for (Cookie c : cookies) {
                 System.out.println(c.getName() + "--->" + c.getValue());
                 if (c.getName().equals("sessionid")){
-                    String sessionid=c.getValue();
+                    sessionid=c.getValue();
                     HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
                     if (session==null){
                         System.out.println("session为空！");
                     }
                     else {
                         System.out.println("session不为空！");
+                        User user=(User) session.getAttribute("userinfo");
+                        config.userip.remove(user.getId());
                         session.invalidate();
                     }
                     break;
                 }
             }
             System.out.println("cookie遍历结束！");
+        }
+        if (sessionid!=null){
+            config.sessionmap.remove(sessionid);
         }
 //        User user = (User) config.sessionmap.get("userinfo");
 //        Cookie userNameCookie = new Cookie("sessionid", user.getUserName());
@@ -316,49 +328,52 @@ public class UserController {
 //            session.invalidate();
 //        }
 //        config.sessionmap.remove(config.sessionID);         //清除session信息
-        config.sessionmap.remove("userinfo");         //清除用户信息
-        config.sessionmap.remove("orderinfo");        //清除订单信息
+//        config.sessionmap.remove("userinfo");         //清除用户信息
+//        config.sessionmap.remove("orderinfo");        //清除订单信息
 //        config.sessionID=null;
         String message="success";
-        String jsonstring = JsonUtil.msgToJson(message);
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
+        myUtils.printMsg(request,response,message);
     }
 
-//    @RequestMapping("/islogin")
-//    public void checkSession(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        System.out.println("in islogin()!");
-//        request.setCharacterEncoding("UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-//        String message=null;
-////        HttpSession session = request.getSession();
-//
-//        if (config.sessionID==null || config.sessionID.equals("")){
-//            message="error";
-//        }
-//        else{
-//            HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
-//            if (session==null || session.getAttribute("username")==null || session.getAttribute("username").equals("")){
-//                System.out.println("session为空"+"sessionID:"+session.getId());
-//                message="error";
-//            }
-//            else{
-//                message="success";
-//                System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
-//            }
-//        }
-//        String jsonstring = JsonUtil.msgToJson(message);
-//        PrintWriter out = response.getWriter();
-//        out.print(jsonstring);
-//        out.flush();
-//        out.close();
-//    }
+    @RequestMapping("/islogin")
+    public void checkSession(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("in islogin()!");
+        String sessionid = request.getParameter("sessionid");
+        HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
+        String message=null;
+        if (session==null){     //若当前会话有效，则说明该用户已登录
+            message="yes";
+        }
+        else {
+            message="no";
+        }
+        myUtils.printMsg(request,response,message);
+    }
 
-    @RequestMapping("/test")
+    @RequestMapping("/check")
     public void checkTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         System.out.println("in checkTest()!");
+        String sessionid = request.getParameter("sessionid");
+        HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
+        String message=null;
+        if (session==null){
+            message="error";
+        }
+        else {
+            User user=(User) session.getAttribute("userinfo");
+            String userip = (String) config.userip.get(user.getId());   //取出原始IP
+            String remoteaddress = request.getRemoteAddr();             //客户端IP
+            System.out.println("原始userip:"+userip+" 客户端remoteaddress:"+remoteaddress);
+            if (userip.equals(remoteaddress)){      //IP相同说明是本人访问
+                message="success";
+            }
+            else {          //不同则意味着已经在其他地方登录
+                message = "bad";
+                session.invalidate();
+            }
+        }
+        myUtils.printMsg(request,response,message);
+
     }
 
 }

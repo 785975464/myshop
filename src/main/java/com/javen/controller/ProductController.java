@@ -9,7 +9,7 @@ import com.javen.model.Category;
 import com.javen.model.Product;
 import com.javen.service.ICategoryService;
 import com.javen.service.IProductService;
-import com.javen.util.JsonUtil;
+import com.javen.util.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -43,28 +43,25 @@ public class ProductController {
         response.getWriter().close();
     }
 
-    @RequestMapping("/getProducts")
-    public void getProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-
-        List<Product> listProduct = productService.getProducts();
-        String listjson = JsonUtil.listToJson(listProduct);
-        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
-        System.out.println("jsonstring:"+jsonstring);
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
-    }
+//    @RequestMapping("/getProducts")
+//    public void getProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        request.setCharacterEncoding("UTF-8");
+//        response.setCharacterEncoding("UTF-8");
+//
+//        List<Product> listProduct = productService.getProducts();
+//        String listjson = JsonUtil.listToJson(listProduct);
+//        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
+//        System.out.println("jsonstring:"+jsonstring);
+//        PrintWriter out = response.getWriter();
+//        out.print(jsonstring);
+//        out.flush();
+//        out.close();
+//    }
 
     @RequestMapping("/query")
     public void getAllProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Product> listProduct =  productService.query();
         System.out.println("getAllProducts! listProduct.size():"+listProduct.size());
-//        for (int i=0;i<listProduct.size();i++){
-//            System.out.println(listProduct.get(i).toString());
-//        }
         response.setCharacterEncoding("UTF-8");
         String listjson = JsonUtil.listToJson(listProduct);
         String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
@@ -100,25 +97,24 @@ public class ProductController {
         try {
             Product product = new Product();
             String name = request.getParameter("name");
-//            String cid = request.getParameter("cid");
+            name = java.net.URLDecoder.decode(name, "UTF-8");  //前台编码
             String remark = request.getParameter("remark");
+            remark = java.net.URLDecoder.decode(remark, "UTF-8");  //前台编码
             String xremark = request.getParameter("xremark");
-    //        String date = request.getParameter("date");
+            xremark = java.net.URLDecoder.decode(xremark, "UTF-8");  //前台编码
             double price;
             try {
                 price = Double.parseDouble(request.getParameter("price"));
             }catch (Exception e){
                 price=0;
-//                e.printStackTrace();
             }
             int number;
             try {
                 number = Integer.parseInt(request.getParameter("number"));
             }catch (Exception e){
                 number=0;
-//                e.printStackTrace();
             }
-            int cid;    //默认分类cid=-1
+            int cid;    //默认分类cid=0
             try {
                 cid = Integer.parseInt(request.getParameter("cid"));
             }catch (Exception e){
@@ -132,17 +128,12 @@ public class ProductController {
             product.setXremark(xremark);
             Category category=(Category) categoryService.get(cid);
             product.setCategory(category);
-//            product.setCid(cid);
             this.productService.add(product);
             message="success";
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -159,11 +150,7 @@ public class ProductController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -177,10 +164,13 @@ public class ProductController {
             int id = Integer.parseInt(request.getParameter("id"));
             System.out.println("updateProduct! id="+id);
             String name = request.getParameter("name");
+            name = java.net.URLDecoder.decode(name, "UTF-8");  //前台编码
             double price = Double.parseDouble(request.getParameter("price"));
             int number = Integer.parseInt(request.getParameter("number"));
             String remark = request.getParameter("remark");
+            remark = java.net.URLDecoder.decode(remark, "UTF-8");  //前台编码
             String xremark = request.getParameter("xremark");
+            xremark = java.net.URLDecoder.decode(xremark, "UTF-8");  //前台编码
             int cid = Integer.parseInt(request.getParameter("cid"));
             Category category=(Category) categoryService.get(cid);
             product.setId(id);
@@ -195,11 +185,7 @@ public class ProductController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 }

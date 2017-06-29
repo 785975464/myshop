@@ -7,6 +7,9 @@
     <select id="get" resultType="Order" parameterType="int">
         SELECT * FROM orderinfo WHERE id = #{id}
     </select>
+    <select id="getLatestOrderByUserId" resultType="Order" parameterType="int">
+        SELECT * FROM orderinfo WHERE uid = #{uid} ORDER BY datetime DESC LIMIT 1
+    </select>
     <select id="query" resultType="Order">
         SELECT * FROM orderinfo
     </select>
@@ -18,7 +21,8 @@
         DELETE FROM orderinfo WHERE id = #{id}
     </select>
     <select id="update" parameterType="Order">
-        UPDATE orderinfo SET uid = #{uid},pid = #{product.id},datetime = #{datetime},total = #{total},solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}
+        <!--UPDATE orderinfo SET uid = #{uid},pid = #{product.id},datetime = #{datetime},total = #{total},solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}-->
+        UPDATE orderinfo SET solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}
     </select>
     <select id="getOrders" parameterType="int" resultMap="OrderResultMap">
         SELECT *,product.id AS productid,category.id AS categoryid FROM orderinfo,product,category

@@ -30,6 +30,9 @@ public class OrderServiceImpl extends BaseServiceImpl implements IOrderService {
 
     public List<Order> getOrdersByCloseStatus(boolean close, int uid){ return orderDao.getOrdersByCloseStatus(close,uid);}
 
+    public Order getLatestOrderByUserId(int uid){ return orderDao.getLatestOrderByUserId(uid);}
+
+
 //    @Resource
 //    private IOrderDao orderDao;
 //

@@ -15,6 +15,8 @@ public interface IOrderService extends IBaseService{
 
     List<Order> getOrdersByCloseStatus(boolean close, int uid);
 
+    Order getLatestOrderByUserId(int uid);
+
 
 //    public Order getOrderById(int id);
 //

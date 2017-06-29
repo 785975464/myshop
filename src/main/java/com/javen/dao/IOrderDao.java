@@ -15,6 +15,8 @@ public interface IOrderDao extends IBaseDao<Order,Integer>{
 
     List<Order> getOrdersByCloseStatus(boolean close, int uid);
 
+    Order getLatestOrderByUserId(int uid);
+
 //    public Order getOrderById(int id);
 //
 //    public List<Order> getAllOrders();

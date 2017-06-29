@@ -16,6 +16,8 @@ public class CrossFilter extends OncePerRequestFilter {     //允许跨域过滤
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException,IOException{
 //        System.out.println("发现一次跨域访问！");
+//        System.out.println("request.getHeader(Access-Control-Request-Method)"+request.getHeader("Access-Control-Request-Method"));
+//        System.out.println("request.getMethod()"+request.getMethod());
 //        if (request.getHeader("Access-Control-Request-Method")!=null && "OPTIONS".equals(request.getMethod())){
             response.addHeader("Access-Control-Allow-Origin","*");
             response.addHeader("Access-Control-Allow-Headers","Content-type");

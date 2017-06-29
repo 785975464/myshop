@@ -7,7 +7,8 @@ import java.util.HashMap;
  */
 public class config {
 //    public static String sessionID;
-    public static HashMap sessionmap = new HashMap();
+    public static HashMap sessionmap = new HashMap();       //仅用作保存session，<"sessionid",session>
+    public static HashMap userip = new HashMap();           //仅用作保存user的访问IP，<"uid",userip>
     public static String FrontPageUrl = "http://192.168.1.105:8888/myshop";
 //public static String FrontPageUrl = "http://192.168.0.141:8888/myshop";
 //    public static String FrontPageUrl = "http://192.168.191.1:8888/myshop";

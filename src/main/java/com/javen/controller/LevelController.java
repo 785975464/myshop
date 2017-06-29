@@ -10,7 +10,7 @@ import com.javen.model.User;
 import com.javen.service.ILevelService;
 import com.javen.service.IUserService;
 import com.javen.util.JsonUtil;
-import com.javen.util.config;
+import com.javen.util.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -79,11 +79,7 @@ public class LevelController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -100,11 +96,7 @@ public class LevelController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -129,11 +121,7 @@ public class LevelController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -141,19 +129,40 @@ public class LevelController {
     public void getDiscountByUserId(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-//        User user = (User)this.userService.get(config.userID);
-        User user = (User)config.sessionmap.get("userinfo");
-//        int l = Integer.parseInt(request.getParameter("level"));
+
+//        Cookie[] cookies = request.getCookies();    //从用户的cookie中取出用户信息
+//        System.out.println("getCurrentUser! cookies:"+cookies);
+//        User user=null;
+//        if (cookies!=null && cookies.length>0) {
+//            for (Cookie c : cookies) {
+//                System.out.println(c.getName() + "--->" + c.getValue());
+//                if (c.getName().equals("sessionid")) {
+//                    String sessionid = c.getValue();
+//                    HttpSession session = (HttpSession) config.sessionmap.get(sessionid);
+//                    if (session == null) {
+//                        System.out.println("session为空！");
+//                    } else {
+//                        System.out.println("session不为空！");
+//                        int id = (Integer) session.getAttribute("id");
+//                        user = (User) userService.get(id);
+//                    }
+//                    break;
+//                }
+//            }
+//        }
+        User user=myUtils.getCurrentLocalUser(request);
         if (user!=null) {       //获取当前用户的折扣
             Level level = this.levelService.getDiscount(user.getLevel());
-            ObjectMapper mapper = new ObjectMapper();
-            response.getWriter().write(mapper.writeValueAsString(level));
-            response.getWriter().close();
+            myUtils.printMsg(request,response,String.valueOf(level.getDiscount()));
+//            ObjectMapper mapper = new ObjectMapper();
+//            response.getWriter().write(mapper.writeValueAsString(level));
+//            response.getWriter().close();
         }
         else{
-            ObjectMapper mapper = new ObjectMapper();
-            response.getWriter().write(mapper.writeValueAsString("error"));
-            response.getWriter().close();
+            myUtils.printMsg(request,response,"error");
+//            ObjectMapper mapper = new ObjectMapper();
+//            response.getWriter().write(mapper.writeValueAsString("error"));
+//            response.getWriter().close();
         }
     }
 }

@@ -10,8 +10,7 @@ import com.javen.model.Product;
 import com.javen.model.User;
 import com.javen.service.IOrderService;
 import com.javen.service.IProductService;
-import com.javen.util.JsonUtil;
-import com.javen.util.config;
+import com.javen.util.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -48,15 +47,30 @@ public class OrderController {
         response.getWriter().close();
     }
 
-    @RequestMapping("/getCurrent")
-    public void getCurrentOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//    @RequestMapping("/getCurrent")
+//    public void getCurrentOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        request.setCharacterEncoding("UTF-8");
+//        response.setCharacterEncoding("UTF-8");
+//        Order order=(Order)config.sessionmap.get("orderinfo");
+//        System.out.println("getCurrentOrder order:"+order.getId()+" "+order.getDatetime());
+//        ObjectMapper mapper = new ObjectMapper();
+//        response.getWriter().write(mapper.writeValueAsString(order));
+//        response.getWriter().close();
+//    }
+
+    @RequestMapping("/getLatest")
+    public void getLatestOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
-        Order order=(Order)config.sessionmap.get("orderinfo");
-        System.out.println("getCurrentOrder order:"+order.getId()+" "+order.getDatetime());
-        ObjectMapper mapper = new ObjectMapper();
-        response.getWriter().write(mapper.writeValueAsString(order));
-        response.getWriter().close();
+        User user = myUtils.getCurrentLocalUser(request);
+        Order order = orderService.getLatestOrderByUserId(user.getId());
+//        Order order=(Order)config.sessionmap.get("orderinfo");
+        System.out.println("getCurrentOrder order:"+order.getId()+" "+order.getDatetime()+" "+user.getUsername());
+//        ObjectMapper mapper = new ObjectMapper();
+//        response.getWriter().write(mapper.writeValueAsString(order));
+//        response.getWriter().close();
+        String listjson = JsonUtil.objectToJson(order);
+        myUtils.printObjectMsg(request,response,listjson);
     }
 
     @RequestMapping("/getOrders")
@@ -64,7 +78,8 @@ public class OrderController {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
 //        User user = (User)this.userService.get(config.userID);
-        User user = (User)config.sessionmap.get("userinfo");
+//        User user = (User)config.sessionmap.get("userinfo");
+        User user = myUtils.getCurrentLocalUser(request);
         if (user!=null) {
             List<Order> listOrder = this.orderService.getOrders(user.getId());
             String listjson = JsonUtil.listToJson(listOrder);
@@ -77,7 +92,7 @@ public class OrderController {
         }
     }
 
-    @RequestMapping("/getOrdersByStatus")   //销售商用于处理未处理的订单
+    @RequestMapping("/getOrders/status")   //销售商用于处理未处理的订单
     public void getOrdersByStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
@@ -101,6 +116,14 @@ public class OrderController {
     public void getOrdersCompleted(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
+//        Cookie[] cookies = request.getCookies();    //从用户的cookie中取出用户信息
+//        System.out.println("getOrdersCompleted! cookies:"+cookies);       //此处发现cookie为空，为什么？？
+        String sessionid = request.getParameter("sessionid");
+        HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
+        User user = (User)session.getAttribute("userinfo");
+        if (user==null){
+            return;
+        }
         boolean close;
         int uid;
         try {
@@ -108,7 +131,11 @@ public class OrderController {
         }catch (Exception e){
             close=false;
         }
-        User user = (User) config.sessionmap.get("userinfo");
+//        User user = (User) config.sessionmap.get("userinfo");
+//        User user = myUtils.getCurrentLocalUser(request);
+//        if (user==null){
+//            return;
+//        }
         uid = user.getId();
         List<Order> listOrder = orderService.getOrdersByCloseStatus(close,uid);
         String listjson = JsonUtil.listToJson(listOrder);
@@ -149,68 +176,57 @@ public class OrderController {
 //            message="none";
 //        }
 //        HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
-        HttpSession session=null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies!=null && cookies.length>0) {
-            for (Cookie c : cookies) {
-                System.out.println(c.getName() + "--->" + c.getValue());
-                if (c.getName().equals("sessionid")){
-                    String sessionid=c.getValue();
-                    session = (HttpSession)config.sessionmap.get(sessionid);
-                    if (session==null){
-                        System.out.println("session为空！");
-                        message="none";
-                    }
-                    break;
-                }
-            }
-            System.out.println("未找到用户cookie！");
-            message="none";
-        }
-//        if (session==null || session.getAttribute("username")==null || session.getAttribute("username").equals("")){
-//            System.out.println("session为空");
+//        HttpSession session=null;
+//        Cookie[] cookies = request.getCookies();
+//        if (cookies!=null && cookies.length>0) {
+//            for (Cookie c : cookies) {
+//                System.out.println(c.getName() + "--->" + c.getValue());
+//                if (c.getName().equals("sessionid")){
+//                    String sessionid=c.getValue();
+//                    session = (HttpSession)config.sessionmap.get(sessionid);
+//                    if (session==null){
+//                        System.out.println("session为空！");
+//                        message="none";
+//                    }
+//                    break;
+//                }
+//            }
+//            System.out.println("未找到用户cookie！");
 //            message="none";
 //        }
-        if (message.equals("none")){
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+        User user=myUtils.getCurrentLocalUser(request);
+        if (user==null){
+            message="none";
+            myUtils.printMsg(request,response,message);
             return;
         }
         try {
-            System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
+//            System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
             Order order = new Order();
-            int uid = Integer.parseInt(session.getAttribute("id").toString());
+//            int uid = Integer.parseInt(session.getAttribute("id").toString());
+            int uid = user.getId();
             int pid = Integer.parseInt(request.getParameter("pid"));
             Long time = new Long(request.getParameter("datetime"));
             Timestamp datetime = Timestamp.valueOf(df.format(time));
-//            Timestamp datetime = Timestamp.valueOf(request.getParameter("datetime"));
-//            Timestamp datetime = Timestamp.valueOf(df.format(request.getParameter("datetime")));
             double total = Double.parseDouble(request.getParameter("total"));
             Product product=(Product) productService.get(pid);  //获取当前订单物品
             order.setUid(uid);
             order.setProduct(product);
             order.setDatetime(datetime);
             order.setTotal(total);
-            order.setSolve(-1);    //默认为-1
+            order.setSolve(-1);    //默认为-1，待处理
             order.setSolveremark("");
             order.setClose(false);
             order.setCloseremark("");
             orderService.add(order);
             System.out.println("当前订单号为："+order.getId());      //获得当前订单号
-            config.sessionmap.put("orderinfo",order);
+//            config.sessionmap.put("orderinfo",order);
             message="success";
         }catch (Exception e){
             message="error";
             e.printStackTrace();
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -235,46 +251,46 @@ public class OrderController {
         }
     }
 
-    @RequestMapping("/update")
+    @RequestMapping("/update")      //更新订单状态
     public void updateOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         String message=null;
         try {
-            Order order = new Order();
+//            Order order = new Order();
             int id = Integer.parseInt(request.getParameter("id"));
             System.out.println("updateOrder! id="+id);
-            int uid = Integer.parseInt(request.getParameter("uid"));
-            int pid = Integer.parseInt(request.getParameter("pid"));
-            Timestamp datetime = Timestamp.valueOf(request.getParameter("datetime"));
-            double total = Double.parseDouble(request.getParameter("total"));
+            Order order = (Order) orderService.get(id);     //部分数据改为由后端提供，仅修改订单状态
+//            int uid = Integer.parseInt(request.getParameter("uid"));
+//            int pid = Integer.parseInt(request.getParameter("pid"));
+//            Timestamp datetime = Timestamp.valueOf(request.getParameter("datetime"));
+//            double total = Double.parseDouble(request.getParameter("total"));
             Integer solve = Integer.parseInt(request.getParameter("solve"));
             String solveremark = request.getParameter("solveremark");
+            solveremark = java.net.URLDecoder.decode(solveremark, "UTF-8");  //前台编码
             boolean close = Boolean.parseBoolean(request.getParameter("close"));
             String closeremark = request.getParameter("closeremark");
-            order.setId(id);
-            order.setUid(uid);
-            Product product = (Product) productService.get(pid);
-            order.setProduct(product);
-//            order.setPid(pid);
-            order.setDatetime(datetime);
-            order.setTotal(total);
+            closeremark = java.net.URLDecoder.decode(closeremark, "UTF-8");  //前台编码
+
+//            System.out.println(order.getProduct().getId());
+//            Order order = new Order();      //要存储的order
+//            order.setId(id);
+//            order.setUid(uid);
+//            Product product = (Product) productService.get(pid);
+//            order.setProduct(product);
+//            order.setDatetime(datetime);
+//            order.setTotal(total);
             order.setSolve(solve);
             order.setSolveremark(solveremark);
             order.setClose(close);
             order.setCloseremark(closeremark);
             this.orderService.update(order);
             message="success";
-//            config.sessionmap.put("orderinfo",order);
         }catch (Exception e){
             message="error";
             e.printStackTrace();
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 }

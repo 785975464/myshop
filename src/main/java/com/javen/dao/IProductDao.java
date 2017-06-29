@@ -11,7 +11,7 @@ public interface IProductDao extends IBaseDao<Product,Integer>{
 
     List<Product> queryByCategoryId(int id);
 
-    List<Product> getProducts();
+//    List<Product> getProducts();
 
 //    public Product getProductById(int id);
 //

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.model.Category;
 import com.javen.service.ICategoryService;
 import com.javen.util.JsonUtil;
+import com.javen.util.myUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -16,9 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 @Controller
@@ -64,17 +63,14 @@ public class CategoryController {
         try {
             Category category = new Category();
             String type = request.getParameter("type");
+            type = java.net.URLDecoder.decode(type, "UTF-8");  //前台编码
             category.setType(type);
             this.categoryService.add(category);
             message="success";
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -91,11 +87,7 @@ public class CategoryController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -109,6 +101,7 @@ public class CategoryController {
             int id = Integer.parseInt(request.getParameter("id"));
             System.out.println("updateCategory! id="+id);
             String type = request.getParameter("type");
+            type = java.net.URLDecoder.decode(type, "UTF-8");  //前台编码
             category.setId(id);
             category.setType(type);
             this.categoryService.update(category);
@@ -116,98 +109,7 @@ public class CategoryController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
-
-
-//
-//    @RequestMapping("/getAllCategorys")
-//    public void getAllProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        List<Category> listCategory =  categoryService.getAllCategorys();
-//        System.out.println("getAllProducts! listProduct.size():"+listCategory.size());
-//        for (int i=0;i<listCategory.size();i++){
-//            System.out.println(listCategory.get(i).toString());
-//        }
-//        response.setCharacterEncoding("UTF-8");
-//        String listjson = JsonUtil.listToJson(listCategory);
-//        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listCategory.size()+",\"recordsFiltered\":"+listCategory.size()+"}";
-//        PrintWriter out = response.getWriter();
-//        out.print(jsonstring);
-//        out.flush();
-//        out.close();
-//    }
-//
-//    @RequestMapping("/addCategory")
-//    public void addProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        System.out.println("addCategory!");
-//        String message=null;
-//        request.setCharacterEncoding("UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-//        try {
-//            Category category = new Category();
-//            String type = request.getParameter("type");
-//            category.setType(type);
-//            this.categoryService.addCategory(category);
-//            message="success";
-//        }catch (Exception e){
-//            message="error";
-//        }finally {
-//            String jsonstring = JsonUtil.msgToJson(message);
-//            PrintWriter out = response.getWriter();
-//            out.print(jsonstring);
-//            out.flush();
-//            out.close();
-//        }
-//    }
-//
-//    @RequestMapping("/deleteCategoryById")
-//    public void deleteProductById(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        request.setCharacterEncoding("UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-//        String message=null;
-//        try {
-//            int id = Integer.parseInt(request.getParameter("id"));
-//            System.out.println("deleteCategoryById! id="+id);
-//            this.categoryService.deleteCategoryById(id);
-//            message="success";
-//        }catch (Exception e){
-//            message="error";
-//        }finally {
-//            String jsonstring = JsonUtil.msgToJson(message);
-//            PrintWriter out = response.getWriter();
-//            out.print(jsonstring);
-//            out.flush();
-//            out.close();
-//        }
-//    }
-//
-//    @RequestMapping("/updateCategory")
-//    public void updateCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        String message=null;
-//        request.setCharacterEncoding("UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-//        try {
-//            Category category = new Category();
-//            int id = Integer.parseInt(request.getParameter("id"));
-//            System.out.println("updateCategory! id="+id);
-//            String type = request.getParameter("type");
-//            category.setId(id);
-//            category.setType(type);
-//            this.categoryService.updateCategory(category);
-//            message="success";
-//        }catch (Exception e){
-//            message="error";
-//        }finally {
-//            String jsonstring = JsonUtil.msgToJson(message);
-//            PrintWriter out = response.getWriter();
-//            out.print(jsonstring);
-//            out.flush();
-//            out.close();
-//        }
-//    }
 }

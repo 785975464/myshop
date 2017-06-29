@@ -9,7 +9,7 @@ import com.javen.model.Authorization;
 import com.javen.model.User;
 import com.javen.service.IAuthorizationService;
 import com.javen.util.JsonUtil;
-import com.javen.util.config;
+import com.javen.util.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -69,11 +69,7 @@ public class AuthorizationController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -90,11 +86,7 @@ public class AuthorizationController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -117,11 +109,7 @@ public class AuthorizationController {
         }catch (Exception e){
             message="error";
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 
@@ -132,7 +120,7 @@ public class AuthorizationController {
         response.setCharacterEncoding("UTF-8");
         String message=null;
         try {
-            User user = (User) config.sessionmap.get("userinfo");
+            User user = myUtils.getCurrentLocalUser(request);
             Authorization authorization = authorizationService.getByRole(user.getRole());
             if (authorization.getAuth()<10){
                 message="no";
@@ -144,11 +132,12 @@ public class AuthorizationController {
             message="error";
             e.printStackTrace();
         }finally {
-            String jsonstring = JsonUtil.msgToJson(message);
-            PrintWriter out = response.getWriter();
-            out.print(jsonstring);
-            out.flush();
-            out.close();
+//            String jsonstring = JsonUtil.msgToJson(message);
+//            PrintWriter out = response.getWriter();
+//            out.print(jsonstring);
+//            out.flush();
+//            out.close();
+            myUtils.printMsg(request,response,message);
         }
     }
 }

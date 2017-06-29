@@ -12,9 +12,9 @@
     <select id="get" parameterType="int" resultType="Product" >
         SELECT * FROM product WHERE id = #{id}
     </select>
-    <select id="query" resultMap="ProductResultMap">
-        SELECT * FROM product,category WHERE product.cid=category.id
-    </select>
+    <!--<select id="query" resultMap="ProductResultMap">-->
+        <!--SELECT * FROM product,category WHERE product.cid=category.id-->
+    <!--</select>-->
     <select id="add" parameterType="Product">
         INSERT INTO product (name, price, number, remark, xremark, cid)
         VALUES (#{name},#{price},#{number},#{remark},#{xremark},#{category.id})
@@ -29,7 +29,7 @@
     <select id="queryByCategoryId" resultType="Product" parameterType="int">
         SELECT * FROM product WHERE cid = #{id}
     </select>
-    <select id="getProducts" resultMap="ProductResultMap">
+    <select id="query" resultMap="ProductResultMap">
         SELECT *,category.id AS categoryid FROM product,category WHERE product.cid=category.id
     </select>
     <!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
