@@ -351,7 +351,7 @@ public class UserController {
         myUtils.printMsg(request,response,message);
     }
 
-    @RequestMapping("/check")
+    @RequestMapping("/check")       //这里做了权限控制
     public void checkTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         System.out.println("in checkTest()!");
         String sessionid = request.getParameter("sessionid");
