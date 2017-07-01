@@ -2,7 +2,9 @@ package com.javen.service.impl;
 
 import com.javen.dao.IBaseDao;
 import com.javen.dao.IOrderDao;
+import com.javen.dao.IProductDao;
 import com.javen.model.Order;
+import com.javen.model.Product;
 import com.javen.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +20,9 @@ public class OrderServiceImpl extends BaseServiceImpl implements IOrderService {
 
     @Autowired
     private IOrderDao orderDao;
+    @Autowired
+    private IProductDao productDao;
 
-    @Override
     public IBaseDao getDao(){
         return orderDao;
     }
@@ -32,8 +35,22 @@ public class OrderServiceImpl extends BaseServiceImpl implements IOrderService {
 
     public Order getLatestOrderByUserId(int uid){ return orderDao.getLatestOrderByUserId(uid);}
 
+    public void add(Order order) {
+        Product product = order.getProduct();
+        System.out.println("当前库存："+product.getNumber());
+        if (product.getNumber()<1){
+            order.setClose(true);
+            order.setCloseremark("库存不足，订单已取消！");
+        }
+        else {
+            productDao.updateProductNumber(product.getId());
+            System.out.println("成功更新库存！");
+        }
+        System.out.println("order:"+order);
+        orderDao.add(order);
+    }
 
-//    @Resource
+    //    @Resource
 //    private IOrderDao orderDao;
 //
 //    public Order getOrderById(int id) {

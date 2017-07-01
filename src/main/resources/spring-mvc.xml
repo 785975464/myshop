@@ -30,14 +30,36 @@
         <property name="suffix" value=".jsp"/>
     </bean>
 
+    <!--spring配置文件添加线程池配置-->
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <!-- 核心线程数 -->
+        <property name="corePoolSize" value="3" />
+        <!-- 最大线程数 -->
+        <property name="maxPoolSize" value="10" />
+        <!-- 队列最大长度 >=mainExecutor.maxSize -->
+        <property name="queueCapacity" value="25" />
+        <!-- 线程池维护线程所允许的空闲时间 -->
+        <property name="keepAliveSeconds" value="300" />
+        <!-- 线程池对拒绝任务(无线程可用)的处理策略 ThreadPoolExecutor.CallerRunsPolicy策略 ,调用者的线程会执行该任务,如果执行器已关闭,则丢弃.  -->
+        <property name="rejectedExecutionHandler">
+            <bean class="java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy" />
+        </property>
+    </bean>
+
     <!--配置拦截器, 多个拦截器,顺序执行 -->
     <mvc:interceptors>
+
         <mvc:interceptor>
             <!-- 匹配的是url路径， 如果不配置或/**,将拦截所有的Controller -->
             <mvc:mapping path="/**" />
             <bean class="com.javen.util.CommonInterceptor"></bean>
         </mvc:interceptor>
         <!-- 当设置多个拦截器时，先按顺序调用preHandle方法，然后逆序调用每个拦截器的postHandle和afterCompletion方法 -->
+        <!-- 权限拦截器 -->
+        <!--<mvc:interceptor>-->
+            <!--<mvc:mapping path="/authorization/**" />-->
+            <!--<bean class="com.javen.util.AuthInterceptor" />-->
+        <!--</mvc:interceptor>-->
     </mvc:interceptors>
 
 </beans>

@@ -121,13 +121,22 @@ public class ProductController {
                 cid=0;
                 e.printStackTrace();
             }
+            int sid;    //默认销售商sid=2
+            try {
+                sid = Integer.parseInt(request.getParameter("sid"));
+            }catch (Exception e){
+                sid=2;      //默认销售商为2
+            }
             product.setName(name);
             product.setPrice(price);
             product.setNumber(number);
+            product.setPicture("/myshop/pimages/a.jpg");
             product.setRemark(remark);
             product.setXremark(xremark);
             Category category=(Category) categoryService.get(cid);
             product.setCategory(category);
+            product.setSid(2);
+            product.setIsdeleted(false);
             this.productService.add(product);
             message="success";
         }catch (Exception e){
@@ -167,11 +176,14 @@ public class ProductController {
             name = java.net.URLDecoder.decode(name, "UTF-8");  //前台编码
             double price = Double.parseDouble(request.getParameter("price"));
             int number = Integer.parseInt(request.getParameter("number"));
+//            String picture = request.getParameter("picture");
             String remark = request.getParameter("remark");
             remark = java.net.URLDecoder.decode(remark, "UTF-8");  //前台编码
             String xremark = request.getParameter("xremark");
             xremark = java.net.URLDecoder.decode(xremark, "UTF-8");  //前台编码
             int cid = Integer.parseInt(request.getParameter("cid"));
+//            int sid = Integer.parseInt(request.getParameter("sid"));
+//            int isdeleted = Integer.parseInt(request.getParameter("isdeleted"));
             Category category=(Category) categoryService.get(cid);
             product.setId(id);
             product.setName(name);
@@ -180,7 +192,29 @@ public class ProductController {
             product.setRemark(remark);
             product.setXremark(xremark);
             product.setCategory(category);
+            product.setSid(2);
             this.productService.update(product);
+            message="success";
+        }catch (Exception e){
+            message="error";
+            e.printStackTrace();
+        }finally {
+            myUtils.printMsg(request,response,message);
+        }
+    }
+
+    @RequestMapping("/update/number")
+    public void updateNumber(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String message=null;
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        try {
+            Product product = new Product();
+            int id = Integer.parseInt(request.getParameter("id"));
+            System.out.println("updateProductNumber! id="+id);
+            int number = Integer.parseInt(request.getParameter("number"));
+            product.setNumber(number);
+            this.productService.updateProductNumber(1);
             message="success";
         }catch (Exception e){
             message="error";

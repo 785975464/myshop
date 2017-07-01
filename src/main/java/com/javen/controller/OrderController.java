@@ -11,6 +11,8 @@ import com.javen.model.User;
 import com.javen.service.IOrderService;
 import com.javen.service.IProductService;
 import com.javen.util.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 
@@ -164,70 +167,63 @@ public class OrderController {
         out.close();
     }
 
+    @Autowired
+    private TaskExecutor executor;
+
     @RequestMapping("/add")
-    public void addOrder(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("addOrder!");
+    public void addOrder(final HttpServletRequest request,final HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         //添加订单前先验证用户
         String message="";
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        if (config.sessionID==null || config.sessionID.equals("")){
-//            message="none";
-//        }
-//        HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
-//        HttpSession session=null;
-//        Cookie[] cookies = request.getCookies();
-//        if (cookies!=null && cookies.length>0) {
-//            for (Cookie c : cookies) {
-//                System.out.println(c.getName() + "--->" + c.getValue());
-//                if (c.getName().equals("sessionid")){
-//                    String sessionid=c.getValue();
-//                    session = (HttpSession)config.sessionmap.get(sessionid);
-//                    if (session==null){
-//                        System.out.println("session为空！");
-//                        message="none";
-//                    }
-//                    break;
-//                }
-//            }
-//            System.out.println("未找到用户cookie！");
-//            message="none";
-//        }
         User user=myUtils.getCurrentLocalUser(request);
         if (user==null){
             message="none";
             myUtils.printMsg(request,response,message);
             return;
         }
-        try {
 //            System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
-            Order order = new Order();
+        final Order order = new Order();
 //            int uid = Integer.parseInt(session.getAttribute("id").toString());
-            int uid = user.getId();
-            int pid = Integer.parseInt(request.getParameter("pid"));
-            Long time = new Long(request.getParameter("datetime"));
-            Timestamp datetime = Timestamp.valueOf(df.format(time));
-            double total = Double.parseDouble(request.getParameter("total"));
-            Product product=(Product) productService.get(pid);  //获取当前订单物品
-            order.setUid(uid);
-            order.setProduct(product);
-            order.setDatetime(datetime);
-            order.setTotal(total);
-            order.setSolve(-1);    //默认为-1，待处理
-            order.setSolveremark("");
-            order.setClose(false);
-            order.setCloseremark("");
-            orderService.add(order);
-            System.out.println("当前订单号为："+order.getId());      //获得当前订单号
-//            config.sessionmap.put("orderinfo",order);
-            message="success";
-        }catch (Exception e){
-            message="error";
-            e.printStackTrace();
-        }finally {
-            myUtils.printMsg(request,response,message);
-        }
+        int uid = user.getId();
+        int pid = Integer.parseInt(request.getParameter("pid"));
+//            Long time = new Long(request.getParameter("datetime"));
+        Date now = new Date();
+        Timestamp datetime = Timestamp.valueOf(df.format(now));
+        double total = Double.parseDouble(request.getParameter("total"));
+        Product product=(Product) productService.get(pid);  //获取当前订单物品
+        order.setUid(uid);
+        order.setProduct(product);
+        order.setDatetime(datetime);
+        order.setTotal(total);
+        order.setSolve(-1);    //默认为-1，待处理
+        order.setSolveremark("");
+        order.setClose(false);
+        order.setCloseremark("");
+        //线程池+同步块
+        executor.execute(new Runnable() {
+            public void run() {
+                synchronized (orderService) {
+                    System.out.println("addOrder!");
+                    try {
+                        //将订单添加到队列中
+            //            config.queue.offer(order)
+                        orderService.add(order);
+                        System.out.println("当前订单号为："+order.getId());      //获得当前订单号
+//                        myUtils.printMsg(request,response,"success");
+
+                    //            config.sessionmap.put("orderinfo",order);
+//                        message="success";
+                    }catch (Exception e){
+//                        message="error";
+                        e.printStackTrace();
+                    }//finally {
+//                        myUtils.printMsg(request,response,"success");
+//                    }
+                }
+            }
+        });
     }
 
     @RequestMapping("/delete")

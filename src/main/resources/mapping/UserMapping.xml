@@ -10,23 +10,26 @@
         <result property="age" column="age"/>
     </resultMap>-->
     <select id="get" resultType="User" parameterType="int">
-        SELECT * FROM user WHERE id = #{id}
+        SELECT * FROM user WHERE id = #{id} AND isdeleted=FALSE
     </select>
     <select id="query" resultType="User">
-        SELECT * FROM user
+        SELECT * FROM user WHERE isdeleted =FALSE
     </select>
     <select id="add" parameterType="User">
-        INSERT INTO user (username, password, birthday, gender, phone, email, role, level, login)
-        VALUES (#{username},#{password},#{birthday},#{gender},#{phone},#{email},#{role},#{level},#{login})
+        INSERT INTO user (username, password, birthday, gender, phone, email, role, level, isdeleted)
+        VALUES (#{username},#{password},#{birthday},#{gender},#{phone},#{email},#{role},#{level},#{isdeleted})
     </select>
+    <!--<select id="delete" parameterType="int">-->
+        <!--DELETE FROM user WHERE id = #{id}-->
+    <!--</select>-->
     <select id="delete" parameterType="int">
-        DELETE FROM user WHERE id = #{id}
+        UPDATE user SET isdeleted=TRUE WHERE id = #{id} AND isdeleted=FALSE
     </select>
     <select id="update" parameterType="User">
-        UPDATE user SET username = #{username},password = #{password},birthday = #{birthday},gender = #{gender},phone = #{phone},email = #{email},role = #{role},level = #{level},login = #{login}
-        WHERE id = #{id}
+        UPDATE user SET username = #{username},password = #{password},birthday = #{birthday},gender = #{gender},
+        phone = #{phone},email = #{email},role = #{role},level = #{level} WHERE id = #{id}
     </select>
     <select id="login" resultType="User" parameterType="User">
-        SELECT * FROM user WHERE username = #{username} AND password = #{password}
+        SELECT * FROM user WHERE username = #{username} AND password = #{password} AND isdeleted=FALSE
     </select>
 </mapper>

@@ -10,27 +10,33 @@
         <result property="age" column="age"/>
     </resultMap>-->
     <select id="get" parameterType="int" resultType="Product" >
-        SELECT * FROM product WHERE id = #{id}
+        SELECT * FROM product WHERE id = #{id} AND isdeleted=FALSE
     </select>
     <!--<select id="query" resultMap="ProductResultMap">-->
         <!--SELECT * FROM product,category WHERE product.cid=category.id-->
     <!--</select>-->
     <select id="add" parameterType="Product">
-        INSERT INTO product (name, price, number, remark, xremark, cid)
-        VALUES (#{name},#{price},#{number},#{remark},#{xremark},#{category.id})
+        INSERT INTO product (name, price, number, picture, remark, xremark, cid, sid, isdeleted)
+        VALUES (#{name},#{price},#{number},#{picture},#{remark},#{xremark},#{category.id},#{sid},#{isdeleted})
     </select>
+    <!--<select id="delete" parameterType="int">-->
+        <!--DELETE FROM product WHERE id = #{id}-->
+    <!--</select>-->
     <select id="delete" parameterType="int">
-        DELETE FROM product WHERE id = #{id}
+        UPDATE product SET isdeleted=TRUE WHERE id = #{id} AND isdeleted=FALSE
     </select>
     <select id="update" parameterType="Product">
-        UPDATE product SET name = #{name},price = #{price},number = #{number},remark = #{remark},xremark = #{xremark},cid = #{category.id}
-        WHERE id = #{id}
+        UPDATE product SET name = #{name},price = #{price},number = #{number},
+        remark = #{remark},xremark = #{xremark},cid = #{category.id},sid = #{sid} WHERE id = #{id} AND isdeleted=FALSE
+    </select>
+    <select id="updateProductNumber" parameterType="int">
+        UPDATE product SET number = number-1 WHERE id = #{id} AND isdeleted=FALSE
     </select>
     <select id="queryByCategoryId" resultType="Product" parameterType="int">
-        SELECT * FROM product WHERE cid = #{id}
+        SELECT * FROM product WHERE cid = #{id} AND isdeleted=FALSE
     </select>
     <select id="query" resultMap="ProductResultMap">
-        SELECT *,category.id AS categoryid FROM product,category WHERE product.cid=category.id
+        SELECT *,category.id AS categoryid FROM product,category WHERE product.cid=category.id AND product.isdeleted=FALSE
     </select>
     <!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
     <resultMap type="com.javen.model.Product" id="ProductResultMap">
@@ -38,8 +44,11 @@
         <result property="name" column="name"/>
         <result property="price" column="price"/>
         <result property="number" column="number"/>
+        <result property="picture" column="picture"/>
         <result property="remark" column="remark"/>
         <result property="xremark" column="xremark"/>
+        <result property="sid" column="sid"/>
+        <result property="isdeleted" column="isdeleted"/>
         <association property="category" javaType="com.javen.model.Category">
             <id property="id" column="categoryid"/>
             <result property="type" column="type"/>

@@ -149,11 +149,12 @@ public class UserController {
             user.setEmail(email);
             user.setRole(role);
             user.settLevel(level);
-            user.setLogin(false);
+            user.setIsdeleted(false);
             this.userService.add(user);
             message="success";
         }catch (Exception e){
             message="error";
+            e.printStackTrace();
         }finally {
 //            String jsonstring = JsonUtil.msgToJson(message);
             myUtils.printMsg(request,response,message);
@@ -210,7 +211,7 @@ public class UserController {
             String email = request.getParameter("email");
             int role = Integer.parseInt(request.getParameter("role"));
             int level = Integer.parseInt(request.getParameter("level"));
-            boolean login = Boolean.parseBoolean(request.getParameter("login"));
+//            boolean delete = Boolean.parseBoolean(request.getParameter("delete"));
             user.setId(id);
             user.setUsername(username);
             user.setPassword(password);
@@ -220,7 +221,7 @@ public class UserController {
             user.setEmail(email);
             user.setRole(role);
             user.settLevel(level);
-            user.setLogin(login);
+//            user.setDeleted(delete);
             this.userService.update(user);
 //            config.sessionmap.put("userinfo",user);     //更新userinfo
             message="success";
@@ -354,22 +355,61 @@ public class UserController {
     public void checkTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         System.out.println("in checkTest()!");
         String sessionid = request.getParameter("sessionid");
+        String href = request.getParameter("href");
+        System.out.println("href:"+href);
+
         HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
         String message=null;
         if (session==null){
             message="error";
         }
-        else {
+        else {              //判断权限，根据前端URL进行路由控制
             User user=(User) session.getAttribute("userinfo");
-            String userip = (String) config.userip.get(user.getId());   //取出原始IP
-            String remoteaddress = request.getRemoteAddr();             //客户端IP
-            System.out.println("原始userip:"+userip+" 客户端remoteaddress:"+remoteaddress);
-            if (userip.equals(remoteaddress)){      //IP相同说明是本人访问
-                message="success";
+            System.out.println("当前用户为:"+user.getUsername()+"用户角色为："+user.getRole());
+            if (href.indexOf("userinfo")>0 && user.getRole()!=0 && user.getRole()!=1 ){      //仅用户、管理员具有查看用户信息的权限
+                System.out.println("当前用户没有userinfo权限");
+                message="no";
             }
-            else {          //不同则意味着已经在其他地方登录
-                message = "bad";
-                session.invalidate();
+            else if (href.indexOf("personalOrder")>0 && user.getRole()!=0 && user.getRole()!=1 ){      //仅用户、管理员具有查看用户订单的权限
+                System.out.println("当前用户没有personalOrder权限");
+                message="no";
+            }
+            else if (href.indexOf("categorysManagement")>0 && user.getRole()!=0 && user.getRole()!=2 ){      //仅销售商、管理员具有商品类别管理的权限
+                System.out.println("当前用户没有categorysManagement权限");
+                message="no";
+            }
+            else if (href.indexOf("productsManagement")>0 && user.getRole()!=0 && user.getRole()!=2 ){      //仅销售商、管理员具有产品信息管理的权限
+                System.out.println("当前用户没有productsManagement权限");
+                message="no";
+            }
+            else if (href.indexOf("ordersManagement")>0 && user.getRole()!=0 && user.getRole()!=2 ){      //仅销售商、管理员具有订单管理的权限
+                System.out.println("当前用户没有ordersManagement权限");
+                message="no";
+            }
+            else if (href.indexOf("usersManagement")>0 && user.getRole()!=0){      //仅管理员具有用户管理的权限
+                System.out.println("当前用户没有usersManagement权限");
+                message="no";
+            }
+            else if (href.indexOf("levelManagement")>0 && user.getRole()!=0){      //仅管理员具有等级管理的权限
+                System.out.println("当前用户没有levelManagement权限");
+                message="no";
+            }
+            else if (href.indexOf("authorizationManagement")>0 && user.getRole()!=0){      //仅管理员具有权限管理的权限
+                System.out.println("当前用户没有authorizationManagement权限");
+                message="no";
+            }
+            else {          //判断登录情况（是否为异地登录）
+                String userip = (String) config.userip.get(user.getId());   //取出原始IP
+                String remoteaddress = request.getRemoteAddr();             //客户端IP
+                System.out.println("原始userip:" + userip + " 客户端remoteaddress:" + remoteaddress);
+                if (userip.equals(remoteaddress)) {      //IP相同说明是本人访问
+                    message = "success";
+                } else {          //不同则意味着已经在其他地方登录
+                    message = "bad";
+                }
+                if (!message.equals("success")){
+                    session.invalidate();
+                }
             }
         }
         myUtils.printMsg(request,response,message);

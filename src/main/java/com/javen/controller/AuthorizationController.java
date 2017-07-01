@@ -113,31 +113,26 @@ public class AuthorizationController {
         }
     }
 
-    @RequestMapping("/checkPermission")
-    public void checkUserPermission(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("in checkUserPermission()!");
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String message=null;
-        try {
-            User user = myUtils.getCurrentLocalUser(request);
-            Authorization authorization = authorizationService.getByRole(user.getRole());
-            if (authorization.getAuth()<10){
-                message="no";
-            }
-            else {
-                message="ok";
-            }
-        }catch (Exception e){
-            message="error";
-            e.printStackTrace();
-        }finally {
-//            String jsonstring = JsonUtil.msgToJson(message);
-//            PrintWriter out = response.getWriter();
-//            out.print(jsonstring);
-//            out.flush();
-//            out.close();
-            myUtils.printMsg(request,response,message);
-        }
-    }
+//    @RequestMapping("/checkPermission")
+//    public void checkUserPermission(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        System.out.println("in checkUserPermission()!");
+//        request.setCharacterEncoding("UTF-8");
+//        response.setCharacterEncoding("UTF-8");
+//        String message=null;
+//        try {
+//            User user = myUtils.getCurrentLocalUser(request);
+//            Authorization authorization = authorizationService.getByRole(user.getRole());
+//            if (authorization.getAuth()<10){
+//                message="no";
+//            }
+//            else {
+//                message="ok";
+//            }
+//        }catch (Exception e){
+//            message="error";
+//            e.printStackTrace();
+//        }finally {
+//            myUtils.printMsg(request,response,message);
+//        }
+//    }
 }

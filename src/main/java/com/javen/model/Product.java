@@ -12,12 +12,14 @@ public class Product {
     private String name;
     private Double price;
     private Integer number;
-//    private String pic;
+    private String picture;
     private String remark;
     private String xremark;
 //    private Timestamp date;
 //    private Integer cid;
     private Category category;
+    private Integer sid;
+    private Boolean isdeleted;
 
     public Integer getId() {
         return id;
@@ -51,13 +53,13 @@ public class Product {
         this.number = number;
     }
 
-//    public String getPic() {
-//        return pic;
-//    }
-//
-//    public void setPic(String pic) {
-//        this.pic = pic;
-//    }
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
 
     public String getRemark() {
         return remark;
@@ -83,14 +85,21 @@ public class Product {
 //        this.date = date;
 //    }
 
-//    public Integer getCid() {
-//        return cid;
-//    }
-//
-//    public void setCid(Integer cid) {
-//        this.cid = cid;
-//    }
+    public Integer getSid() {
+        return sid;
+    }
 
+    public void setSid(Integer sid) {
+        this.sid = sid;
+    }
+
+    public Boolean getIsdeleted() {
+        return isdeleted;
+    }
+
+    public void setIsdeleted(Boolean isdeleted) {
+        this.isdeleted = isdeleted;
+    }
 
     public Category getCategory() {
         return category;
@@ -107,12 +116,13 @@ public class Product {
                 ", name='" + name + '\'' +
                 ", price=" + price +
                 ", number='" + number + '\'' +
-//                ", pic='" + pic + '\'' +
+                ", picture='" + picture + '\'' +
                 ", remark='" + remark + '\'' +
                 ", xremark='" + xremark + '\'' +
-//                ", date=" + date +
-//                ", cid=" + cid +
+                ", sid=" + sid +
                 ", category=" +category +
+                ", isdeleted=" + isdeleted +
+
                 '}';
     }
 }

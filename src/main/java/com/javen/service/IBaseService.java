@@ -1,6 +1,7 @@
 package com.javen.service;
 
 import com.javen.model.User;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 /**
  * Created by Jay on 2017/6/21.
  */
+@Transactional
 public interface IBaseService<T,ID extends Serializable> {
 //    public User getUserById(int userId);
 //

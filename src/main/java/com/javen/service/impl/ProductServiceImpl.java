@@ -26,6 +26,8 @@ public class ProductServiceImpl extends BaseServiceImpl implements IProductServi
 
     public List<Product> queryByCategoryId(int id){ return productDao.queryByCategoryId(id);}
 
+    public void updateProductNumber(int id){ productDao.updateProductNumber(id);}
+
 //    public List<Product> getProducts(){ return productDao.getProducts();}
 
     //    @Resource

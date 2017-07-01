@@ -24,7 +24,7 @@ public class User {
 
     private Integer level;
 
-    private Boolean login;
+    private Boolean isdeleted;
 
     public Integer getId() {
         return id;
@@ -98,9 +98,13 @@ public class User {
         this.level = level;
     }
 
-    public Boolean getLogin() { return login; }
+    public Boolean getIsdeleted() {
+        return isdeleted;
+    }
 
-    public void setLogin(Boolean login) { this.login = login; }
+    public void setIsdeleted(Boolean isdeleted) {
+        this.isdeleted = isdeleted;
+    }
 
     @Override
     public String toString() {
@@ -114,7 +118,7 @@ public class User {
                 ", email='" + email + '\'' +
                 ", role=" + role +'\'' +
                 ", level=" + level +'\'' +
-                ", login=" + login +
+                ", isdeleted=" + isdeleted +
                 '}';
     }
 }
