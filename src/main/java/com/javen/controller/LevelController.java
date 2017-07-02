@@ -11,6 +11,7 @@ import com.javen.service.ILevelService;
 import com.javen.service.IUserService;
 import com.javen.util.JsonUtil;
 import com.javen.util.*;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.List;
 
 
@@ -26,7 +28,8 @@ import java.util.List;
 @RequestMapping("/level")
 // /user/**
 public class LevelController {
-//    private static Logger log=LoggerFactory.getLogger(UserController.class);
+
+    private static Logger logger=Logger.getLogger(LevelController.class);
 
     @Resource
     private ILevelService levelService;
@@ -117,6 +120,7 @@ public class LevelController {
             level.setDiscount(discount);
             level.setCredit(credit);
             this.levelService.update(level);
+            logger.info("管理员在时间"+new Date()+"修改等级设置："+level);
             message="success";
         }catch (Exception e){
             message="error";

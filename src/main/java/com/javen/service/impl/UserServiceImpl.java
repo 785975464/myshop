@@ -4,8 +4,12 @@ import com.javen.dao.IBaseDao;
 import com.javen.dao.IUserDao;
 import com.javen.model.User;
 import com.javen.service.IUserService;
+import org.apache.log4j.Logger;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -13,8 +17,10 @@ import java.util.List;
 /**
  * Created by Jay on 2017/6/21.
  */
+
 @Service("userService")
 public class UserServiceImpl extends BaseServiceImpl implements IUserService {
+
 
     @Autowired
     private IUserDao userDao;

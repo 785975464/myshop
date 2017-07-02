@@ -26,8 +26,8 @@
         UPDATE product SET isdeleted=TRUE WHERE id = #{id} AND isdeleted=FALSE
     </select>
     <select id="update" parameterType="Product">
-        UPDATE product SET name = #{name},price = #{price},number = #{number},
-        remark = #{remark},xremark = #{xremark},cid = #{category.id},sid = #{sid} WHERE id = #{id} AND isdeleted=FALSE
+        UPDATE product SET name = #{name},price = #{price},number = #{number},remark = #{remark},
+        xremark = #{xremark},cid = #{category.id} WHERE id = #{id} AND isdeleted=FALSE
     </select>
     <select id="updateProductNumber" parameterType="int">
         UPDATE product SET number = number-1 WHERE id = #{id} AND isdeleted=FALSE
@@ -37,6 +37,10 @@
     </select>
     <select id="query" resultMap="ProductResultMap">
         SELECT *,category.id AS categoryid FROM product,category WHERE product.cid=category.id AND product.isdeleted=FALSE
+    </select>
+    <select id="getProductsBySeller" resultMap="ProductResultMap" parameterType="int">
+        SELECT *,category.id AS categoryid FROM product,category
+        WHERE product.cid=category.id AND product.isdeleted=FALSE AND product.sid=#{sid}
     </select>
     <!-- 使用resultMap映射实体类和字段之间的一一对应关系 -->
     <resultMap type="com.javen.model.Product" id="ProductResultMap">

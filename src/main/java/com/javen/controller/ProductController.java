@@ -7,6 +7,7 @@ package com.javen.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.model.Category;
 import com.javen.model.Product;
+import com.javen.model.User;
 import com.javen.service.ICategoryService;
 import com.javen.service.IProductService;
 import com.javen.util.*;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -71,6 +73,21 @@ public class ProductController {
         out.close();
     }
 
+    @RequestMapping("/query/seller")
+    public void getProductsBySeller(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//        User user=myUtils.getCurrentLocalUser(request);
+        User user = myUtils.getUserByCookie(request);
+        List<Product> listProduct =  productService.getProductsBySeller(user.getId());
+        System.out.println("getProductsBySeller! listProduct.size():"+listProduct.size());
+        response.setCharacterEncoding("UTF-8");
+        String listjson = JsonUtil.listToJson(listProduct);
+        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
+        PrintWriter out = response.getWriter();
+        out.print(jsonstring);
+        out.flush();
+        out.close();
+    }
+
     @RequestMapping("/query/categoryid")
     public void getProductsByCategoryId(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
@@ -95,6 +112,7 @@ public class ProductController {
         response.setCharacterEncoding("UTF-8");
         String message=null;
         try {
+            User user = myUtils.getCurrentLocalUser(request);
             Product product = new Product();
             String name = request.getParameter("name");
             name = java.net.URLDecoder.decode(name, "UTF-8");  //前台编码
@@ -121,12 +139,12 @@ public class ProductController {
                 cid=0;
                 e.printStackTrace();
             }
-            int sid;    //默认销售商sid=2
-            try {
-                sid = Integer.parseInt(request.getParameter("sid"));
-            }catch (Exception e){
-                sid=2;      //默认销售商为2
-            }
+            int sid = user.getId();    //默认销售商sid=2
+//            try {
+//                sid = Integer.parseInt(request.getParameter("sid"));
+//            }catch (Exception e){
+//                sid=2;      //默认销售商为2
+//            }
             product.setName(name);
             product.setPrice(price);
             product.setNumber(number);
@@ -135,7 +153,7 @@ public class ProductController {
             product.setXremark(xremark);
             Category category=(Category) categoryService.get(cid);
             product.setCategory(category);
-            product.setSid(2);
+            product.setSid(sid);
             product.setIsdeleted(false);
             this.productService.add(product);
             message="success";
@@ -192,7 +210,7 @@ public class ProductController {
             product.setRemark(remark);
             product.setXremark(xremark);
             product.setCategory(category);
-            product.setSid(2);
+//            product.setSid(2);        //update默认不更新
             this.productService.update(product);
             message="success";
         }catch (Exception e){

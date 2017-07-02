@@ -65,6 +65,7 @@ public class CategoryController {
             String type = request.getParameter("type");
             type = java.net.URLDecoder.decode(type, "UTF-8");  //前台编码
             category.setType(type);
+            category.setIsdeleted(false);
             this.categoryService.add(category);
             message="success";
         }catch (Exception e){

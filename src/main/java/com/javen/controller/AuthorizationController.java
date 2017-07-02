@@ -10,6 +10,7 @@ import com.javen.model.User;
 import com.javen.service.IAuthorizationService;
 import com.javen.util.JsonUtil;
 import com.javen.util.*;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -18,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.List;
 
 
@@ -25,6 +27,8 @@ import java.util.List;
 @RequestMapping("/authorization")
 
 public class AuthorizationController {
+
+    private static Logger logger=Logger.getLogger(AuthorizationController.class);
 
     @Resource
     private IAuthorizationService authorizationService;
@@ -105,6 +109,7 @@ public class AuthorizationController {
             authorization.setRole(role);
             authorization.setAuth(auth);
             this.authorizationService.update(authorization);
+            logger.info("管理员在时间"+new Date()+"修改权限设置："+authorization);
             message="success";
         }catch (Exception e){
             message="error";

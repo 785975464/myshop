@@ -178,20 +178,23 @@ public class OrderController {
         String message="";
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         User user=myUtils.getCurrentLocalUser(request);
+//        int userid = Integer.parseInt(request.getParameter("uid"));
+
+//        User user = new User();
+//        user.setId(userid);
+
         if (user==null){
             message="none";
             myUtils.printMsg(request,response,message);
             return;
         }
-//            System.out.println("session: id="+session.getAttribute("id")+" username="+session.getAttribute("username"));
         final Order order = new Order();
-//            int uid = Integer.parseInt(session.getAttribute("id").toString());
         int uid = user.getId();
         int pid = Integer.parseInt(request.getParameter("pid"));
-//            Long time = new Long(request.getParameter("datetime"));
         Date now = new Date();
         Timestamp datetime = Timestamp.valueOf(df.format(now));
         double total = Double.parseDouble(request.getParameter("total"));
+//        double total=1;
         Product product=(Product) productService.get(pid);  //获取当前订单物品
         order.setUid(uid);
         order.setProduct(product);

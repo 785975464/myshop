@@ -58,4 +58,11 @@ public class myUtils {
         }
         return user;
     }
+
+    public static User getUserByCookie(HttpServletRequest request) throws IOException {
+        String sessionid = request.getParameter("sessionid");
+        HttpSession session = (HttpSession) config.sessionmap.get(sessionid);
+        User user = (User)session.getAttribute("userinfo");
+        return user;
+    }
 }

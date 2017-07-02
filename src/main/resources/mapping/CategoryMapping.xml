@@ -4,16 +4,19 @@
 <mapper namespace="com.javen.dao.ICategoryDao">
 
     <select id="get" resultType="Category" parameterType="int">
-        SELECT * FROM category WHERE id = #{id}
+        SELECT * FROM category WHERE id = #{id} AND isdeleted=FALSE
     </select>
     <select id="query" resultType="Category">
-        SELECT * FROM category
+        SELECT * FROM category WHERE isdeleted=FALSE
     </select>
     <select id="add" parameterType="Category">
-        INSERT INTO category (type) VALUES (#{type})
+        INSERT INTO category (type,isdeleted) VALUES (#{type},#{isdeleted})
     </select>
+    <!--<select id="delete" parameterType="int">-->
+        <!--DELETE FROM category WHERE id = #{id} AND isdeleted=FALSE-->
+    <!--</select>-->
     <select id="delete" parameterType="int">
-        DELETE FROM category WHERE id = #{id}
+        UPDATE category SET isdeleted=TRUE WHERE id = #{id} AND isdeleted=FALSE
     </select>
     <select id="update" parameterType="Category">
         UPDATE category SET type = #{type} WHERE id = #{id}

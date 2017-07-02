@@ -56,12 +56,12 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
         String requestUri = request.getRequestURI();
 //
         System.out.println("拦截器：requestUri:"+requestUri);
-//        if (requestUri.equals("/myshop/user/check")){
+//        if (requestUri.equals("/myshop/order/add")){
 //            return true;
 //        }
-//        if (requestUri.equals("/myshop/user/loginout")){
-//            return true;
-//        }
+        if (requestUri.equals("/myshop/user/loginout")){
+            return true;
+        }
         if (requestUri.equals(config.FrontPageUrl) || requestUri.indexOf("indexpage")>0 || requestUri.indexOf("login")>0){
             System.out.println("访问首页或login！");
             return true;

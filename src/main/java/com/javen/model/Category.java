@@ -8,6 +8,7 @@ public class Category {
 	// Constructors
 	private Integer id;
 	private String type;
+	private Boolean isdeleted;
 
 	public Integer getId() {
 		return this.id;
@@ -25,11 +26,20 @@ public class Category {
 		this.type = type;
 	}
 
-	@Override
-	public String toString() {
-		return "Category{" +
-				"id=" + id +
-				", type='" + type + '\'' +
-				'}';
-	}
+    public Boolean getIsdeleted() {
+        return isdeleted;
+    }
+
+    public void setIsdeleted(Boolean isdeleted) {
+        this.isdeleted = isdeleted;
+    }
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", type='" + type + '\'' +
+                ", isdeleted=" + isdeleted +
+                '}';
+    }
 }

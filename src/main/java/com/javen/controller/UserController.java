@@ -14,7 +14,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.service.IUserService;
 import com.javen.util.JsonUtil;
 import com.javen.util.*;
+import org.apache.log4j.Logger;
+import org.junit.runner.RunWith;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.javen.model.User;
 
@@ -25,10 +30,14 @@ import java.util.Date;
 import java.util.List;
 
 //@CrossOrigin(origins = "*",maxAge = 3600)        //允许跨域
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration({"classpath:spring-mybatis.xml"})
 @Controller
 @RequestMapping("/user")    //"/user/**"
 public class UserController {
 
+    private static Logger logger=Logger.getLogger(UserController.class);
+//    private static final Logger logger = LoggerFactory.getLogger(LoggerNames.LOGISTICS_COMPONENT);
     @Resource
     private IUserService userService;
 
@@ -254,6 +263,8 @@ public class UserController {
             HttpSession session = request.getSession();
             //把用户数据保存在session域对象中
             u = list.get(0);
+            logger.info("用户"+u.getId()+" "+u.getUsername()+"在时间"+new Date()+"成功登录系统！");
+
             System.out.println("用户"+u.getUsername()+"已登录成功！");
             session.setAttribute("id", u.getId());     //将用户信息存储在session中
             session.setAttribute("username", username);     //将用户信息存储在session中
@@ -301,10 +312,12 @@ public class UserController {
                     HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
                     if (session==null){
                         System.out.println("session为空！");
+                        logger.info("未知用户在时间"+new Date()+"退出系统！");
                     }
                     else {
                         System.out.println("session不为空！");
                         User user=(User) session.getAttribute("userinfo");
+                        logger.info("用户"+user.getId()+" "+user.getUsername()+"在时间"+new Date()+"退出系统！");
                         config.userip.remove(user.getId());
                         session.invalidate();
                     }
@@ -312,10 +325,15 @@ public class UserController {
                 }
             }
             System.out.println("cookie遍历结束！");
+            logger.info("未知用户在时间"+new Date()+"退出系统！");
+        }
+        else {
+            logger.info("未知用户在时间"+new Date()+"退出系统！");
         }
         if (sessionid!=null){
             config.sessionmap.remove(sessionid);
         }
+
 //        User user = (User) config.sessionmap.get("userinfo");
 //        Cookie userNameCookie = new Cookie("sessionid", user.getUserName());
 //        Cookie passwordCookie = new Cookie("loginPassword", loginUser.getPassword());
@@ -365,7 +383,7 @@ public class UserController {
         }
         else {              //判断权限，根据前端URL进行路由控制
             User user=(User) session.getAttribute("userinfo");
-            System.out.println("当前用户为:"+user.getUsername()+"用户角色为："+user.getRole());
+            System.out.println("当前用户为:"+user.getUsername()+" 用户角色为："+user.getRole());
             if (href.indexOf("userinfo")>0 && user.getRole()!=0 && user.getRole()!=1 ){      //仅用户、管理员具有查看用户信息的权限
                 System.out.println("当前用户没有userinfo权限");
                 message="no";
