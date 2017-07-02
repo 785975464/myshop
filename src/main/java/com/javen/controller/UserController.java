@@ -263,7 +263,7 @@ public class UserController {
             HttpSession session = request.getSession();
             //把用户数据保存在session域对象中
             u = list.get(0);
-            logger.info("用户"+u.getId()+" "+u.getUsername()+"在时间"+new Date()+"成功登录系统！");
+            logger.info("用户"+u.getId()+" "+u.getUsername()+"在时间"+new Date()+"成功登录系统！");     //添加日志管理
 
             System.out.println("用户"+u.getUsername()+"已登录成功！");
             session.setAttribute("id", u.getId());     //将用户信息存储在session中
