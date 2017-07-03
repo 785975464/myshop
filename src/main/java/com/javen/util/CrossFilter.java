@@ -11,23 +11,22 @@ import java.io.IOException;
 /**
  * Created by Jay on 2017/6/23.
  */
-public class CrossFilter extends OncePerRequestFilter {     //允许跨域过滤器，高版本的SpringMVC更改为使用注解@CrossOrigin
+
+/**
+ * 允许跨域过滤器，高版本的SpringMVC更改为使用注解@CrossOrigin
+ * 允许前台跨域访问REDIRECT
+ * 允许前台跨域访问CONTENTPATH
+ */
+public class CrossFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException,IOException{
-//        System.out.println("发现一次跨域访问！");
-//        System.out.println("request.getHeader(Access-Control-Request-Method)"+request.getHeader("Access-Control-Request-Method"));
-//        System.out.println("request.getMethod()"+request.getMethod());
-//        if (request.getHeader("Access-Control-Request-Method")!=null && "OPTIONS".equals(request.getMethod())){
-            response.addHeader("Access-Control-Allow-Origin","*");
-            response.addHeader("Access-Control-Allow-Headers","Content-type");
-            response.addHeader("Access-Control-Max-Age","1800");
-            response.addHeader("Access-Control-Allow-Credentials","true");
-            response.addHeader("Access-Control-Expose-Headers","REDIRECT");     //允许前台跨域访问REDIRECT
-            response.addHeader("Access-Control-Expose-Headers","CONTENTPATH");     //允许前台跨域访问CONTENTPATH
-//            System.out.println("发现一次跨域访问！");
-//        }
-//        System.out.println("发现一次跨域访问！"+request.getRequestURI());
+        response.addHeader("Access-Control-Allow-Origin","*");
+        response.addHeader("Access-Control-Allow-Headers","Content-type");
+        response.addHeader("Access-Control-Max-Age","1800");
+        response.addHeader("Access-Control-Allow-Credentials","true");
+        response.addHeader("Access-Control-Expose-Headers","REDIRECT");
+        response.addHeader("Access-Control-Expose-Headers","CONTENTPATH");
         filterChain.doFilter(request,response);
     }
 }

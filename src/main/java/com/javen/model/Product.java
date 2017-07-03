@@ -7,7 +7,6 @@ import java.sql.Timestamp;
  */
 public class Product {
 
-	// Constructors
     private Integer id;
     private String name;
     private Double price;
@@ -15,8 +14,6 @@ public class Product {
     private String picture;
     private String remark;
     private String xremark;
-//    private Timestamp date;
-//    private Integer cid;
     private Category category;
     private Integer sid;
     private Boolean isdeleted;
@@ -77,14 +74,6 @@ public class Product {
         this.xremark = xremark;
     }
 
-//    public Timestamp getDate() {
-//        return date;
-//    }
-//
-//    public void setDate(Timestamp date) {
-//        this.date = date;
-//    }
-
     public Integer getSid() {
         return sid;
     }
@@ -122,7 +111,6 @@ public class Product {
                 ", sid=" + sid +
                 ", category=" +category +
                 ", isdeleted=" + isdeleted +
-
                 '}';
     }
 }

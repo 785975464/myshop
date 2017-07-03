@@ -21,14 +21,4 @@ public interface IOrderService extends IBaseService{
 
     void add(Order o);
 
-    //    public Order getOrderById(int id);
-//
-//    public List<Order> getAllOrders();
-//
-//    public void addOrder(Order order);
-//
-//    public void deleteOrderById(int id);
-//
-//    public void updateOrder(Order order);
-
 }

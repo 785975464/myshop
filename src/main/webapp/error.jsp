@@ -23,22 +23,6 @@
    </head>
 
    <body>
-    <table border="1">
-         <tbody>
-             <tr>
-                 <th>姓名</th>
-                 <th>年龄</th>
-             </tr>
-             <c:if test="${!empty listUser }">
-                 <c:forEach items="${listUser}" var="list">
-                     <tr>
-                         <td>${list.username }</td>
-                         <td>${list.age }</td>
-
-                     </tr>
-                 </c:forEach>
-             </c:if>
-         </tbody>
-     </table>
+    出错啦~
    </body>
  </html>

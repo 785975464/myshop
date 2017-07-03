@@ -1,5 +1,7 @@
 package com.javen.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -11,8 +13,12 @@ import javax.servlet.http.HttpSession;
 /**
  * Created by Jay on 2017/6/27.
  */
+
+/**
+ * 自定义拦截器，使用cookie验证用户登录状态
+ */
 public class CommonInterceptor extends HandlerInterceptorAdapter {
-//    public static final String LAST_PAGE = "com.alibaba.lastPage";
+    private static Logger logger= LoggerFactory.getLogger(CommonInterceptor.class);
 
     /**
      * 在业务处理器处理请求之前被调用
@@ -28,116 +34,53 @@ public class CommonInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response, Object handler) throws Exception {
-//        Cookie[] cookies = request.getCookies();
-//        System.out.println("cookies:"+cookies);
-//        if(cookies!=null){
-//            System.out.println("cookies.length:"+cookies.length);
-//        }
-//        if (cookies!=null && cookies.length>0) {
-//            for (Cookie c : cookies) {
-//                System.out.println(c.getName() + "--->" + c.getValue());
-//                if (c.getName().equals("sessionid")) {
-//                    String sessionid = c.getValue();
-//                    HttpSession session = (HttpSession) config.sessionmap.get(sessionid);
-//                    if (session == null) {
-//                        System.out.println("session为空！");
-////                        return false;
-//                    } else {
-//                        System.out.println("session不为空！");
-////                        return true;
-//                    }
-//                }
-//            }
-//        }
-
-//        if ("GET".equalsIgnoreCase(request.getMethod())) {
-//            RequestUtil.saveRequest();
-//        }
         String requestUri = request.getRequestURI();
-//
-        System.out.println("拦截器：requestUri:"+requestUri);
-//        if (requestUri.equals("/myshop/order/add")){
-//            return true;
-//        }
+        logger.info("拦截器：requestUri:"+requestUri);
         if (requestUri.equals("/myshop/user/loginout")){
             return true;
         }
         if (requestUri.equals(config.FrontPageUrl) || requestUri.indexOf("indexpage")>0 || requestUri.indexOf("login")>0){
-            System.out.println("访问首页或login！");
+            logger.info("访问首页或login！");
             return true;
         }
         if (requestUri.indexOf("query")>0 || requestUri.indexOf("getOrders")>0 ){
-            System.out.println("访问query！");
+            logger.info("访问query！");
             return true;
         }
         boolean flag=true;
         Cookie[] cookies = request.getCookies();
-        System.out.println("cookies:"+cookies);
         if(cookies!=null){
-            System.out.println("cookies.length:"+cookies.length);
+            logger.info("cookies.length:"+cookies.length);
         }
         if (cookies!=null && cookies.length>0) {
             for (Cookie c : cookies) {
-                System.out.println(c.getName() + "--->" + c.getValue());
+                logger.info(c.getName() + "--->" + c.getValue());
                 if (c.getName().equals("sessionid")){
                     String sessionid=c.getValue();
                     HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
-//                    request.getSession().setAttribute("sessionid",sessionid);
-//                    System.out.println(request.getSession().getAttribute("sessionid"));
-//                    System.out.println("request.getSession().getId():"+request.getSession().getId());
-
                     if (session==null){
-                        System.out.println("session为空！");
                         flag=false;
                         break;
                     }
                     else {
-                        System.out.println("session不为空！");
-//                        flag=true;
-//                        break;
                         return true;
                     }
                 }
             }
-            System.out.println("cookie遍历结束！");
+            logger.info("cookie遍历结束！");
             flag=false;
         }
         else {
-            System.out.println("不存在cookie！");
+            logger.info("不存在cookie！");
             flag = false;
         }
         if (flag){
             return true;
         }
         else {
-            System.out.println("重定向到:" + config.FrontPageUrl);
-            //告诉ajax需要重定向
+            logger.info("重定向到:" + config.FrontPageUrl);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }
     }
-
-    /**
-     * 在业务处理器处理请求执行完成后,生成视图之前执行的动作
-     * 可在modelAndView中加入数据，比如当前时间
-     */
-//    @Override
-//    public void postHandle(HttpServletRequest request,
-//                           HttpServletResponse response, Object handler,
-//                           ModelAndView modelAndView) throws Exception {
-//        if(modelAndView != null){  //加入当前时间
-//            modelAndView.addObject("var", "测试postHandle");
-//        }
-//    }
-
-    /**
-     * 在DispatcherServlet完全处理完请求后被调用,可用于清理资源等
-     *
-     * 当有拦截器抛出异常时,会从当前拦截器往回执行所有的拦截器的afterCompletion()
-     */
-//    @Override
-//    public void afterCompletion(HttpServletRequest request,
-//                                HttpServletResponse response, Object handler, Exception ex)
-//            throws Exception {
-//    }
 }

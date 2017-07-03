@@ -4,122 +4,127 @@ package com.javen.controller;
  * Created by Jay on 2017/6/21.
  */
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.model.Category;
 import com.javen.model.Product;
 import com.javen.model.User;
 import com.javen.service.ICategoryService;
 import com.javen.service.IProductService;
 import com.javen.util.*;
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.Date;
 import java.util.List;
 
-
+/**
+ * 处理有关于商品的操作
+ */
 @Controller
 @RequestMapping("/product")
-// /user/**
 public class ProductController {
 
+    private static Logger logger=Logger.getLogger(ProductController.class);
     @Resource
     private IProductService productService;
     @Resource
     private ICategoryService categoryService;
 
+    /**
+     * 根据商品ID返回商品
+     * @param request
+     * @param response
+     */
     @RequestMapping("/get")
-    public void selectCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        int id = Integer.parseInt(request.getParameter("id"));
-//        Product product = this.productService.getProductById(id);
-        Product product = (Product) this.productService.get(id);
-        ObjectMapper mapper = new ObjectMapper();
-        response.getWriter().write(mapper.writeValueAsString(product));
-        response.getWriter().close();
-    }
-
-//    @RequestMapping("/getProducts")
-//    public void getProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        request.setCharacterEncoding("UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-//
-//        List<Product> listProduct = productService.getProducts();
-//        String listjson = JsonUtil.listToJson(listProduct);
-//        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
-//        System.out.println("jsonstring:"+jsonstring);
-//        PrintWriter out = response.getWriter();
-//        out.print(jsonstring);
-//        out.flush();
-//        out.close();
-//    }
-
-    @RequestMapping("/query")
-    public void getAllProducts(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<Product> listProduct =  productService.query();
-        System.out.println("getAllProducts! listProduct.size():"+listProduct.size());
-        response.setCharacterEncoding("UTF-8");
-        String listjson = JsonUtil.listToJson(listProduct);
-        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
-    }
-
-    @RequestMapping("/query/seller")
-    public void getProductsBySeller(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        User user=myUtils.getCurrentLocalUser(request);
-        User user = myUtils.getUserByCookie(request);
-        List<Product> listProduct =  productService.getProductsBySeller(user.getId());
-        System.out.println("getProductsBySeller! listProduct.size():"+listProduct.size());
-        response.setCharacterEncoding("UTF-8");
-        String listjson = JsonUtil.listToJson(listProduct);
-        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
-    }
-
-    @RequestMapping("/query/categoryid")
-    public void getProductsByCategoryId(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        int id = Integer.parseInt(request.getParameter("id"));
-        List<Product> listProduct =  productService.queryByCategoryId(id);
-        System.out.println("getProductsByCategoryId! listProduct.size():"+listProduct.size());
-
-        response.setCharacterEncoding("UTF-8");
-        String listjson = JsonUtil.listToJson(listProduct);
-        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listProduct.size()+",\"recordsFiltered\":"+listProduct.size()+"}";
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
-    }
-
-    @RequestMapping("/add")
-    public void addProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("addProduct!");
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String message=null;
+    public void selectCategory(HttpServletRequest request, HttpServletResponse response) {
+        Product product = null;
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            int id = Integer.parseInt(request.getParameter("id"));
+            product = (Product) this.productService.get(id);
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+        myUtils.printQueryMsg(response,product);
+    }
+
+    /**
+     * 查询所有商品
+     * @param request
+     * @param response
+     */
+    @RequestMapping("/query")
+    public void getAllProducts(HttpServletRequest request, HttpServletResponse response){
+        try {
+            List<Product> listProduct =  productService.query();
+            response.setCharacterEncoding("UTF-8");
+            myUtils.printListMsg(response,listProduct);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 根据销售商ID查询商品
+     * @param request
+     * @param response
+     */
+    @RequestMapping("/query/seller")
+    public void getProductsBySeller(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            User user = myUtils.getUserByCookie(request);
+            logger.info("userinfo:"+user);
+            List<Product> listProduct =  productService.getProductsBySeller(user.getId());
+            response.setCharacterEncoding("UTF-8");
+            myUtils.printListMsg(response,listProduct);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 通过类别查询商品
+     * @param request
+     * @param response
+     */
+    @RequestMapping("/query/categoryid")
+    public void getProductsByCategoryId(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            int id = Integer.parseInt(request.getParameter("id"));
+            List<Product> listProduct =  productService.queryByCategoryId(id);
+            response.setCharacterEncoding("UTF-8");
+            myUtils.printListMsg(response,listProduct);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 添加商品
+     * @param request
+     * @param response
+     */
+    @RequestMapping("/add")
+    public void addProduct(HttpServletRequest request, HttpServletResponse response) {
+        String message;
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             User user = myUtils.getCurrentLocalUser(request);
             Product product = new Product();
             String name = request.getParameter("name");
-            name = java.net.URLDecoder.decode(name, "UTF-8");  //前台编码
+            name = java.net.URLDecoder.decode(name, "UTF-8");
             String remark = request.getParameter("remark");
-            remark = java.net.URLDecoder.decode(remark, "UTF-8");  //前台编码
+            remark = java.net.URLDecoder.decode(remark, "UTF-8");
             String xremark = request.getParameter("xremark");
-            xremark = java.net.URLDecoder.decode(xremark, "UTF-8");  //前台编码
+            xremark = java.net.URLDecoder.decode(xremark, "UTF-8");
             double price;
             try {
                 price = Double.parseDouble(request.getParameter("price"));
@@ -132,19 +137,13 @@ public class ProductController {
             }catch (Exception e){
                 number=0;
             }
-            int cid;    //默认分类cid=0
+            int cid;
             try {
                 cid = Integer.parseInt(request.getParameter("cid"));
             }catch (Exception e){
                 cid=0;
-                e.printStackTrace();
             }
-            int sid = user.getId();    //默认销售商sid=2
-//            try {
-//                sid = Integer.parseInt(request.getParameter("sid"));
-//            }catch (Exception e){
-//                sid=2;      //默认销售商为2
-//            }
+            int sid = user.getId();
             product.setName(name);
             product.setPrice(price);
             product.setNumber(number);
@@ -156,52 +155,58 @@ public class ProductController {
             product.setSid(sid);
             product.setIsdeleted(false);
             this.productService.add(product);
-            message="success";
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-        }finally {
-            myUtils.printMsg(request,response,message);
+            message=config.ERROR;
+            logger.error(e.getMessage());
         }
+        myUtils.printMsg(request,response,message);
     }
 
+    /**
+     * 删除商品
+     * @param request
+     * @param response
+     */
     @RequestMapping("/delete")
-    public void deleteProductById(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String message=null;
+    public void deleteProductById(HttpServletRequest request, HttpServletResponse response) {
+        String message;
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             int id = Integer.parseInt(request.getParameter("id"));
-            System.out.println("deleteProductById! id="+id);
+            logger.info("deleteProductById! id="+id);
             this.productService.delete(id);
-            message="success";
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-        }finally {
-            myUtils.printMsg(request,response,message);
+            message=config.ERROR;
+            logger.error(e.getMessage());
         }
+        myUtils.printMsg(request,response,message);
     }
 
+    /**
+     * 更新商品
+     * @param request
+     * @param response
+     */
     @RequestMapping("/update")
-    public void updateProduct(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String message=null;
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
+    public void updateProduct(HttpServletRequest request, HttpServletResponse response) {
+        String message;
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             Product product = new Product();
             int id = Integer.parseInt(request.getParameter("id"));
-            System.out.println("updateProduct! id="+id);
             String name = request.getParameter("name");
-            name = java.net.URLDecoder.decode(name, "UTF-8");  //前台编码
+            name = java.net.URLDecoder.decode(name, "UTF-8");
             double price = Double.parseDouble(request.getParameter("price"));
             int number = Integer.parseInt(request.getParameter("number"));
-//            String picture = request.getParameter("picture");
             String remark = request.getParameter("remark");
-            remark = java.net.URLDecoder.decode(remark, "UTF-8");  //前台编码
+            remark = java.net.URLDecoder.decode(remark, "UTF-8");
             String xremark = request.getParameter("xremark");
-            xremark = java.net.URLDecoder.decode(xremark, "UTF-8");  //前台编码
+            xremark = java.net.URLDecoder.decode(xremark, "UTF-8");
             int cid = Integer.parseInt(request.getParameter("cid"));
-//            int sid = Integer.parseInt(request.getParameter("sid"));
-//            int isdeleted = Integer.parseInt(request.getParameter("isdeleted"));
             Category category=(Category) categoryService.get(cid);
             product.setId(id);
             product.setName(name);
@@ -210,34 +215,38 @@ public class ProductController {
             product.setRemark(remark);
             product.setXremark(xremark);
             product.setCategory(category);
-//            product.setSid(2);        //update默认不更新
             this.productService.update(product);
-            message="success";
+            logger.info("销售商在时间"+new Date()+"修改商品设置："+product);
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-            e.printStackTrace();
-        }finally {
-            myUtils.printMsg(request,response,message);
+            message=config.ERROR;
+            logger.error(e.getMessage());
         }
+        myUtils.printMsg(request,response,message);
     }
 
+    /**
+     * 更新商品数量-1
+     * @param request
+     * @param response
+     */
     @RequestMapping("/update/number")
-    public void updateNumber(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String message=null;
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
+    public void updateNumber(HttpServletRequest request, HttpServletResponse response) {
+        String message;
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             Product product = new Product();
             int id = Integer.parseInt(request.getParameter("id"));
-            System.out.println("updateProductNumber! id="+id);
+            logger.info("updateProductNumber! id="+id);
             int number = Integer.parseInt(request.getParameter("number"));
             product.setNumber(number);
-            this.productService.updateProductNumber(1);
-            message="success";
+            this.productService.updateProductNumber(id);
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-        }finally {
-            myUtils.printMsg(request,response,message);
+            message=config.ERROR;
+            logger.error(e.getMessage());
         }
+        myUtils.printMsg(request,response,message);
     }
 }

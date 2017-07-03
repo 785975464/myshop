@@ -49,6 +49,11 @@
             <!-- 指定范围，在测试时才会加载 -->
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
 
         <!-- 添加spring核心依赖 -->
         <dependency>

@@ -14,16 +14,5 @@ public interface IProductDao extends IBaseDao<Product,Integer>{
     List<Product> getProductsBySeller(int id);
 
     void updateProductNumber(int id);
-//    List<Product> getProducts();
-
-//    public Product getProductById(int id);
-//
-//    public List<Product> getAllProducts();
-//
-//    public void addProduct(Product product);
-//
-//    public void deleteProductById(int id);
-//
-//    public void updateProduct(Product product);
 
 }

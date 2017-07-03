@@ -3,7 +3,6 @@
 <!-- 设置为IOrderDao接口方法提供sql语句配置 -->
 <!-- 为这个mapper指定一个唯一的namespace -->
 <mapper namespace="com.javen.dao.IOrderDao">
-
     <select id="get" resultType="Order" parameterType="int">
         SELECT * FROM orderinfo WHERE id = #{id}
     </select>
@@ -21,7 +20,6 @@
         DELETE FROM orderinfo WHERE id = #{id}
     </select>
     <select id="update" parameterType="Order">
-        <!--UPDATE orderinfo SET uid = #{uid},pid = #{product.id},datetime = #{datetime},total = #{total},solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}-->
         UPDATE orderinfo SET solve = #{solve},solveremark = #{solveremark},close = #{close},closeremark = #{closeremark} WHERE id = #{id}
     </select>
     <select id="getOrders" parameterType="int" resultMap="OrderResultMap">

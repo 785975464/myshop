@@ -8,14 +8,5 @@ import com.javen.model.Authorization;
 public interface IAuthorizationDao extends IBaseDao<Authorization,Integer>{
 
     Authorization getByRole(int role);
-//    public Level getLevelById(int id);
-//
-//    public List<Level> getAllLevels();
-//
-//    public void addLevel(Level level);
-//
-//    public void deleteLevelById(int id);
-//
-//    public void updateLevel(Level level);
 
 }

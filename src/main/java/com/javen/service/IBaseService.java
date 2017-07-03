@@ -1,6 +1,5 @@
 package com.javen.service;
 
-import com.javen.model.User;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
@@ -11,15 +10,7 @@ import java.util.List;
  */
 @Transactional
 public interface IBaseService<T,ID extends Serializable> {
-//    public User getUserById(int userId);
-//
-//    public List<User> getAllUsers();
-//
-//    public void addUser(User user);
-//
-//    public void deleteUserById(int id);
-//
-//    public void updateUser(User user);
+
     void add(T t);
 
     void update(T t);

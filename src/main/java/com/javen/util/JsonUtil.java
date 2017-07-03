@@ -6,9 +6,9 @@ import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
-
+/**
+ * 自定义json转换类
+ */
 public class JsonUtil {
 	/**
 	 * @param object
@@ -51,7 +51,6 @@ public class JsonUtil {
 					String name = objectToJson(props[i].getName());
 					String value = objectToJson(props[i].getReadMethod()
 							.invoke(bean));
-//					System.out.println("in beanToJson! name:"+name+"value:"+value);
 					json.append(name);
 					json.append(":");
 					if (value==null || value.equals("") || value.equals("}")){
@@ -93,21 +92,20 @@ public class JsonUtil {
 		return json.toString();
 	}
 	
-	//我的自定义object转json工具类
+	/**
+	 * 我的自定义object转json工具类
+	 * @param list
+	 * @param propvalues
+	 * @return
+	 */
 	public static String myListToJson(List<?> list,String[]... propvalues) {
 		StringBuilder json = new StringBuilder();
-//		String[] props = (String[]) ArrayUtils.addAll(userPropvalues, visionPropvalues, schoolPropvalues);
 		ArrayList<String> props = new ArrayList<String>();
 		for(int i=0;i<propvalues.length;i++){
 			for(int j=0;j<propvalues[i].length;j++){
 				props.add(String.valueOf(propvalues[i][j]));
 			}
 		}
-//				ArrayUtils.addAll(
-//				new ArrayList<String>(Arrays.asList(userPropvalues)),
-//				new ArrayList<String>(Arrays.asList(visionPropvalues)),
-//				new ArrayList<String>(Arrays.asList(schoolPropvalues))
-//				);
 		json.append("[");
 		if (list != null && list.size() > 0) {
 			for (Object obj : list) {
@@ -123,21 +121,15 @@ public class JsonUtil {
 	
 	public static String myObjectToJson(Object object,ArrayList<String> props) {
 		Object[] obj=(Object[]) object;
-//		String[] props = (String[]) ArrayUtils.addAll(userPropvalues, visionPropvalues);
-		
 		StringBuilder json = new StringBuilder();
 		if (object == null || obj.length!=props.size()) {
 			json.append("\"\"");
 		} else {
-			//ƴ��json
 			json.append("{");
 			for(int i=0;i<obj.length;i++){  
-//		        System.out.println("obj[i]:"+obj[i]);  
 				json.append("\"").append(props.get(i)).append("\"");
-//		        json.append(props[i]);
 				json.append(":");
 				json.append("\"").append(obj[i]).append("\"");
-//				json.append(obj[i]);
 				json.append(",");
 		    }
 			json.setCharAt(json.length() - 1, '}');
@@ -150,7 +142,6 @@ public class JsonUtil {
 		if (message == null || message.equals("")) {
 			json.append("\"\"");
 		} else {
-			//ƴ��json
 			json.append("{");
 			json.append("msg");
 			json.append(":");

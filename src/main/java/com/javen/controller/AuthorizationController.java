@@ -4,11 +4,8 @@ package com.javen.controller;
  * Created by Jay on 2017/6/21.
  */
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.model.Authorization;
-import com.javen.model.User;
 import com.javen.service.IAuthorizationService;
-import com.javen.util.JsonUtil;
 import com.javen.util.*;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -17,15 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
 
-
+/**
+ * 处理有关于用户权限的操作
+ */
 @Controller
 @RequestMapping("/authorization")
-
 public class AuthorizationController {
 
     private static Logger logger=Logger.getLogger(AuthorizationController.class);
@@ -33,76 +29,101 @@ public class AuthorizationController {
     @Resource
     private IAuthorizationService authorizationService;
 
+    /**
+     * 查询权限
+     * @param request
+     * @param response
+     */
     @RequestMapping("/get")
-    public void selectAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        int id = Integer.parseInt(request.getParameter("id"));
-        Authorization authorization = (Authorization) this.authorizationService.get(id);
-        ObjectMapper mapper = new ObjectMapper();
-        response.getWriter().write(mapper.writeValueAsString(authorization));
-        response.getWriter().close();
-    }
-
-    @RequestMapping("/query")
-    public void getAllAuthorizations(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<Authorization> listAuthorization =  authorizationService.query();
-        response.setCharacterEncoding("UTF-8");
-        String listjson = JsonUtil.listToJson(listAuthorization);
-        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listAuthorization.size()+",\"recordsFiltered\":"+listAuthorization.size()+"}";
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
-    }
-
-    @RequestMapping("/add")
-    public void addAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("addAuthorization!");
-        String message=null;
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
+    public void selectAuthorization(HttpServletRequest request, HttpServletResponse response) {
+        Authorization authorization = null;
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            int id = Integer.parseInt(request.getParameter("id"));
+            authorization = (Authorization) this.authorizationService.get(id);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+        myUtils.printObjectMsg(request,response,authorization);
+    }
+
+    /**
+     * 查询所有权限
+     * @param request
+     * @param response
+     */
+    @RequestMapping("/query")
+    public void getAllAuthorizations(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            List<Authorization> listAuthorization =  authorizationService.query();
+            response.setCharacterEncoding("UTF-8");
+            myUtils.printListMsg(response,listAuthorization);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 添加权限
+     * @param request
+     * @param response
+     */
+    @RequestMapping("/add")
+    public void addAuthorization(HttpServletRequest request, HttpServletResponse response) {
+        String message;
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             Authorization authorization = new Authorization();
             int role = Integer.parseInt(request.getParameter("role"));
             int auth = Integer.parseInt(request.getParameter("auth"));
             authorization.setRole(role);
             authorization.setAuth(auth);
             this.authorizationService.add(authorization);
-            message="success";
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-        }finally {
-            myUtils.printMsg(request,response,message);
+            message=config.ERROR;
+            logger.error(e.getMessage());
         }
+        myUtils.printMsg(request,response,message);
     }
 
+    /**
+     * 删除权限
+     * @param request
+     * @param response
+     */
     @RequestMapping("/delete")
-    public void deleteLevelById(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String message=null;
+    public void deleteLevelById(HttpServletRequest request, HttpServletResponse response) {
+        String message;
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             int id = Integer.parseInt(request.getParameter("id"));
-            System.out.println("deleteLevelById! id="+id);
+            logger.info("deleteLevelById! id="+id);
             this.authorizationService.delete(id);
-            message="success";
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-        }finally {
-            myUtils.printMsg(request,response,message);
+            message=config.ERROR;
         }
+        myUtils.printMsg(request,response,message);
     }
 
+    /**
+     * 更新权限
+     * @param request
+     * @param response
+     */
     @RequestMapping("/update")
-    public void updateAuthorization(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String message=null;
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
+    public void updateAuthorization(HttpServletRequest request, HttpServletResponse response) {
+        String message;
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             Authorization authorization = new Authorization();
             int id = Integer.parseInt(request.getParameter("id"));
-            System.out.println("updateAuthorization! id="+id);
+            logger.info("updateAuthorization! id="+id);
             int role = Integer.parseInt(request.getParameter("role"));
             int auth = Integer.parseInt(request.getParameter("auth"));
             authorization.setId(id);
@@ -110,34 +131,10 @@ public class AuthorizationController {
             authorization.setAuth(auth);
             this.authorizationService.update(authorization);
             logger.info("管理员在时间"+new Date()+"修改权限设置："+authorization);
-            message="success";
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-        }finally {
-            myUtils.printMsg(request,response,message);
+            message=config.ERROR;
         }
+        myUtils.printMsg(request,response,message);
     }
-
-//    @RequestMapping("/checkPermission")
-//    public void checkUserPermission(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        System.out.println("in checkUserPermission()!");
-//        request.setCharacterEncoding("UTF-8");
-//        response.setCharacterEncoding("UTF-8");
-//        String message=null;
-//        try {
-//            User user = myUtils.getCurrentLocalUser(request);
-//            Authorization authorization = authorizationService.getByRole(user.getRole());
-//            if (authorization.getAuth()<10){
-//                message="no";
-//            }
-//            else {
-//                message="ok";
-//            }
-//        }catch (Exception e){
-//            message="error";
-//            e.printStackTrace();
-//        }finally {
-//            myUtils.printMsg(request,response,message);
-//        }
-//    }
 }

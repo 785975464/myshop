@@ -17,14 +17,4 @@ public interface IOrderDao extends IBaseDao<Order,Integer>{
 
     Order getLatestOrderByUserId(int uid);
 
-//    public Order getOrderById(int id);
-//
-//    public List<Order> getAllOrders();
-//
-//    public void addOrder(Order order);
-//
-//    public void deleteOrderById(int id);
-//
-//    public void updateOrder(Order order);
-
 }

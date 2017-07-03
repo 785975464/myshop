@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://ccd.cmbchina.com/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://ccd.cmbchina.com/schema/mvc  http://ccd.cmbchina.com/schema/mvc/spring-mvc.xsd">
+
+    <context:component-scan base-package="com.cmbchina.ccd.gaia.creditxservice" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+          p:location="classpath:spring-config.properties"/>
+
+    <bean id="xCreditHttpsClient" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="com.cmbchina.ccd.gaia.creditxservice.service.XCreditHttpsClient"/>
+    </bean>
+
+    <bean id="CreditBaseClient" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="com.cmbchina.ccd.gaia.creditxservice.service.CreditBaseClient"/>
+    </bean>
+
+    <bean id="applicationConfig" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="com.cmbchina.ccd.gaia.creditxservice.model.ApplicationConfig"/>
+    </bean>
+
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <constructor-arg name="defaultCharset" value="UTF-8"/>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+</beans>

@@ -10,14 +10,5 @@ import java.util.List;
 public interface IUserDao extends IBaseDao<User,Integer>{
 
     List<User> login(User user);
-//    public User getUserById(int id);
-//
-//    public List<User> getAllUsers();
-//
-//    public void addUser(User user);
-//
-//    public void deleteUserById(int id);
-//
-//    public void updateUser(User user);
 
 }

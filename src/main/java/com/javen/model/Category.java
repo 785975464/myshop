@@ -5,7 +5,6 @@ package com.javen.model;
  */
 public class Category {
 
-	// Constructors
 	private Integer id;
 	private String type;
 	private Boolean isdeleted;

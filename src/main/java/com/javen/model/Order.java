@@ -4,10 +4,8 @@ import java.sql.Timestamp;
 
 public class Order {
 
-	// Constructors
 	private Integer id;
 	private Integer uid;
-//	private Integer pid;
 	private Product product;	//一对一关系
 	private Timestamp datetime;
 	private double total;
@@ -31,14 +29,6 @@ public class Order {
 	public void setUid(Integer uid) {
 		this.uid = uid;
 	}
-
-//	public Integer getPid() {
-//		return pid;
-//	}
-//
-//	public void setPid(Integer pid) {
-//		this.pid = pid;
-//	}
 
 	public Product getProduct() {
 		return product;
@@ -101,7 +91,6 @@ public class Order {
 		return "Order{" +
 				"id=" + id +
 				", uid=" + uid +
-//				", pid=" + pid +
 				", product=" + product +
 				", datetime=" + datetime +
 				", total=" + total +

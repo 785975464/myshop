@@ -94,7 +94,7 @@ public class User {
         return level;
     }
 
-    public void settLevel(Integer level) {
+    public void setLevel(Integer level) {
         this.level = level;
     }
 

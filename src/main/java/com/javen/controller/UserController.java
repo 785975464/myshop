@@ -8,18 +8,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.ws.spi.http.HttpContext;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javen.service.IUserService;
-import com.javen.util.JsonUtil;
 import com.javen.util.*;
 import org.apache.log4j.Logger;
-import org.junit.runner.RunWith;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.javen.model.User;
 
@@ -29,102 +22,89 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-//@CrossOrigin(origins = "*",maxAge = 3600)        //允许跨域
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration({"classpath:spring-mybatis.xml"})
+/**
+ * 处理有关于用户的操作
+ */
 @Controller
-@RequestMapping("/user")    //"/user/**"
+@RequestMapping("/user")
 public class UserController {
 
     private static Logger logger=Logger.getLogger(UserController.class);
-//    private static final Logger logger = LoggerFactory.getLogger(LoggerNames.LOGISTICS_COMPONENT);
     @Resource
     private IUserService userService;
 
+    /**
+     * 根据用户ID返回用户
+     * @param request
+     * @param response
+     */
     @RequestMapping("/get")
-    public void getUserById(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        int userId = Integer.parseInt(request.getParameter("id"));
-        User user = (User) this.userService.get(userId);
-        ObjectMapper mapper = new ObjectMapper();
-        response.getWriter().write(mapper.writeValueAsString(user));
-        response.getWriter().close();
+    public void getUserById(HttpServletRequest request, HttpServletResponse response){
+        User user = null;
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            int userId = Integer.parseInt(request.getParameter("id"));
+            user = (User) this.userService.get(userId);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+        logger.info("in /user/get! user="+user);
+        myUtils.printQueryMsg(response,user);
     }
 
+    /**
+     * 获取当前登录用户
+     * @param request
+     * @param response
+     */
     @RequestMapping("/getCurrent")
-    public void getCurrentUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-
-//        Cookie[] cookies = request.getCookies();    //从用户的cookie中取出用户信息
-//        System.out.println("getCurrentUser! cookies:"+cookies);
-//        User user=null;
-//        if (cookies!=null && cookies.length>0) {
-//            for (Cookie c : cookies) {
-//                System.out.println(c.getName() + "--->" + c.getValue());
-//                if (c.getName().equals("sessionid")) {
-//                    String sessionid = c.getValue();
-//                    HttpSession session = (HttpSession) config.sessionmap.get(sessionid);
-//                    if (session == null) {
-//                        System.out.println("session为空！");
-//                    } else {
-//                        System.out.println("session不为空！");
-//                        int id = (Integer) session.getAttribute("id");
-//                        user = (User) userService.get(id);
-//                    }
-//                    break;
-//                }
-//            }
-//        }
-//        User user = (User) config.sessionmap.get("userinfo");
-//        System.out.println("当前user信息："+user.getId()+" "+user.getUsername());
-        User user = myUtils.getCurrentLocalUser(request);
+    public void getCurrentUser(HttpServletRequest request, HttpServletResponse response) {
+        User user = null;
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            user = myUtils.getCurrentLocalUser(request);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+        logger.info("in /user/getCurrent! user="+user);
         String listjson = JsonUtil.objectToJson(user);
         myUtils.printObjectMsg(request,response,listjson);
-//        String callback = request.getParameter("callback");
-//        String listjson = JsonUtil.objectToJson(user);
-//        String jsonstring=callback+"("+"{\"data\":"+listjson+"}"+")";
-//        PrintWriter out = response.getWriter();
-//        out.print(jsonstring);
-//        out.flush();
-//        out.close();
     }
 
 
-
+    /**
+     * 查询所有用户
+     * @param request
+     * @param response
+     */
     @RequestMapping("/query")
-    public void getAllUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        response.setHeader("Access-Control-Allow-Origin", "*");
-
-        List<User> listUser =  userService.query();
-        System.out.println("listUser.size():"+listUser.size());
-//        for (int i=0;i<listUser.size();i++){
-//            System.out.println(listUser.get(i).toString());
-//        }
-        response.setCharacterEncoding("UTF-8");
-        String listjson = JsonUtil.listToJson(listUser);
-        String jsonstring="{\"data\":"+listjson+",\"draw\":\"1\",\"recordsTotal\":"+listUser.size()+",\"recordsFiltered\":"+listUser.size()+"}";
-//        String jsonstring="{data:"+listUser+",draw:1,recordsTotal:"+listUser.size()+",recordsFiltered:"+listUser.size()+"}";
-//
-        System.out.println("jsonstring:"+jsonstring);
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
+    public void getAllUsers(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            response.setCharacterEncoding("UTF-8");
+            List<User> listUser =  userService.query();
+            myUtils.printListMsg(response,listUser);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
     }
 
+    /**
+     * 添加用户。参数由前台编码，role默认为1
+     * @param request
+     * @param response
+     */
     @RequestMapping("/add")
-    public void addUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("addUser!");
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String message=null;
+    public void addUser(HttpServletRequest request, HttpServletResponse response) {
+        String message;
         SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             User user = new User();
             String username = request.getParameter("username");
-            username = java.net.URLDecoder.decode(username, "UTF-8");  //前台编码
+            username = java.net.URLDecoder.decode(username, "UTF-8");
             String password = request.getParameter("password");
             Date birthday;
             try {
@@ -133,22 +113,20 @@ public class UserController {
                 birthday=new Date();
             }
             String gender = request.getParameter("gender");
-            gender = java.net.URLDecoder.decode(gender, "UTF-8");  //前台编码
+            gender = java.net.URLDecoder.decode(gender, "UTF-8");
             String phone = request.getParameter("phone");
             String email = request.getParameter("email");
-            int role;     //默认角色role=1，普通用户
+            int role;
             try {
                 role = Integer.parseInt(request.getParameter("role"));
             }catch (Exception e){
                 role=1;
-//                e.printStackTrace();
             }
-            int level;    //默认等级level=0，最低等级
+            int level;
             try {
                 level = Integer.parseInt(request.getParameter("level"));
             }catch (Exception e){
                 level=0;
-//                e.printStackTrace();
             }
             user.setUsername(username);
             user.setPassword(password);
@@ -157,70 +135,77 @@ public class UserController {
             user.setPhone(phone);
             user.setEmail(email);
             user.setRole(role);
-            user.settLevel(level);
+            user.setLevel(level);
             user.setIsdeleted(false);
             this.userService.add(user);
-            message="success";
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-            e.printStackTrace();
-        }finally {
-//            String jsonstring = JsonUtil.msgToJson(message);
-            myUtils.printMsg(request,response,message);
+            message=config.ERROR;
+            logger.error(e.getMessage());
         }
+        myUtils.printMsg(request,response,message);
     }
 
+    /**
+     * 删除指定用户，更新其删除标志位
+     * @param request
+     * @param response
+     */
     @RequestMapping("/delete")
-    public void deleteUserById(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String message=null;
+    public void deleteUserById(HttpServletRequest request, HttpServletResponse response) {
+        String message;
         try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             int id = Integer.parseInt(request.getParameter("id"));
-            System.out.println("deleteUserById! id="+id);
             this.userService.delete(id);
-            message="success";
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-        }finally {
-//            String jsonstring = JsonUtil.msgToJson(message);
-//            String callback = request.getParameter("callback");
-//            String jsonstring=callback+"({\"msg\":\""+message+"\"})";
-//            PrintWriter out = response.getWriter();
-//            out.print(jsonstring);
-//            out.flush();
-//            out.close();
-            myUtils.printMsg(request,response,message);
-
+            message=config.ERROR;
         }
+        myUtils.printMsg(request,response,message);
     }
 
+    /**
+     * 更新用户信息，并更新ssession缓存
+     * @param request
+     * @param response
+     */
     @RequestMapping("/update")
-    public void updateUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String message=null;
+    public void updateUser(HttpServletRequest request, HttpServletResponse response) {
+        String message;
         SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd");
+        Cookie[] cookies = request.getCookies();
+        if(cookies==null){
+            return;
+        }
+        HttpSession session=null;
+        if (cookies!=null && cookies.length>0) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals("sessionid")) {
+                    String sessionid = c.getValue();
+                    session = (HttpSession) config.sessionmap.get(sessionid);
+                }
+            }
+        }
         try {
+            if (session==null){
+                return;
+            }
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
             User user = new User();
             int id = Integer.parseInt(request.getParameter("id"));
-            System.out.println("updateUser! id="+id);
             String username = request.getParameter("username");
-            username = java.net.URLDecoder.decode(username, "UTF-8");  //前台编码
-//            System.out.println("username:"+username+" "+java.net.URLDecoder.decode(username, "UTF-8")+
-//                        " "+new String(username.getBytes("UTF-8"),"ISO-8859-1")+
-//                        " "+new String(username.getBytes("UTF-8"),"GB2312")+
-//                        " "+new String(username.getBytes("UTF-8"),"GBK")+
-//                        " "+new String(username.getBytes("UTF-8"),"Unicode"));
+            username = java.net.URLDecoder.decode(username, "UTF-8");
             String password = request.getParameter("password");
             Date birthday = sdf.parse(request.getParameter("birthday"));
             String gender = request.getParameter("gender");
-            gender = java.net.URLDecoder.decode(gender, "UTF-8");  //前台编码
+            gender = java.net.URLDecoder.decode(gender, "UTF-8");
             String phone = request.getParameter("phone");
             String email = request.getParameter("email");
             int role = Integer.parseInt(request.getParameter("role"));
             int level = Integer.parseInt(request.getParameter("level"));
-//            boolean delete = Boolean.parseBoolean(request.getParameter("delete"));
             user.setId(id);
             user.setUsername(username);
             user.setPassword(password);
@@ -229,209 +214,222 @@ public class UserController {
             user.setPhone(phone);
             user.setEmail(email);
             user.setRole(role);
-            user.settLevel(level);
-//            user.setDeleted(delete);
+            user.setLevel(level);
             this.userService.update(user);
-//            config.sessionmap.put("userinfo",user);     //更新userinfo
-            message="success";
+            if (((User)session.getAttribute("userinfo")).getRole()!=0){
+                session.setAttribute("id", user.getId());
+                session.setAttribute("username", user.getUsername());
+                session.setAttribute("userinfo",user);
+            }
+            message=config.SUCCESS;
         }catch (Exception e){
-            message="error";
-            e.printStackTrace();
-        }finally {
-            myUtils.printMsg(request,response,message);
+            message=config.ERROR;
+            logger.error(e.getMessage());
         }
+        myUtils.printMsg(request,response,message);
     }
 
+    /**
+     * 检查用户是否合法登录，记录日志并保存在session中，并将sessionid返回
+     * @param request
+     * @param response
+     */
     @RequestMapping("/login")
-    public void userLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String message=null;
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-        List<User> list = this.userService.login(user);
-        int size = list.size();
-        User u=null;
-        String sessionid=null;
-//        System.out.println("发现"+size+"个用户登录！");
-        if (size==1){
-            message="success";
-            //创建session对象
-            HttpSession session = request.getSession();
-            //把用户数据保存在session域对象中
-            u = list.get(0);
-            logger.info("用户"+u.getId()+" "+u.getUsername()+"在时间"+new Date()+"成功登录系统！");     //添加日志管理
-
-            System.out.println("用户"+u.getUsername()+"已登录成功！");
-            session.setAttribute("id", u.getId());     //将用户信息存储在session中
-            session.setAttribute("username", username);     //将用户信息存储在session中
-            session.setAttribute("userinfo",u);
-
-            System.out.println( "session:"+session.getAttribute("id")+session.getAttribute("username")+
-                                " sessionID:"+session.getId()+" getRemoteAddr:"+request.getRemoteAddr());
-//            config.sessionID=session.getId();   //保存当前sessionID及用户ID
-            sessionid=session.getId();      //保存当前sessionID并返回前端
-            //自动登录cookie
-//            Cookie sessionid = new Cookie("sessionid", session.getId());
-//            sessionid.setMaxAge(3600);  //过期时间1小时
-//            sessionid.setPath("/");
-//            response.addCookie(sessionid);
-            config.sessionmap.put(session.getId(),session);
-            config.userip.put(u.getId(),request.getRemoteAddr());
-//            session.setAttribute("userip",request.getRemoteAddr()); //获取客户端IP
-
-//            config.sessionmap.put("userinfo",list.get(0));
-        }
-        else{
-            message="error";
-        }
-        String listjson = JsonUtil.objectToJson(u);
-        String jsonstring="{\"info\":\""+message+"\",\"data\":"+listjson+",\"sessionid\":\"" + sessionid + "\"}";
-        PrintWriter out = response.getWriter();
-        out.print(jsonstring);
-        out.flush();
-        out.close();
-    }
-
-    @RequestMapping("/loginout")
-    public void userLoginOut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("loginout!");
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        String sessionid=null;
-//删除登录cookie
-        Cookie[] cookies = request.getCookies();
-        if (cookies!=null && cookies.length>0) {
-            for (Cookie c : cookies) {
-                System.out.println(c.getName() + "--->" + c.getValue());
-                if (c.getName().equals("sessionid")){
-                    sessionid=c.getValue();
-                    HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
-                    if (session==null){
-                        System.out.println("session为空！");
-                        logger.info("未知用户在时间"+new Date()+"退出系统！");
-                    }
-                    else {
-                        System.out.println("session不为空！");
-                        User user=(User) session.getAttribute("userinfo");
-                        logger.info("用户"+user.getId()+" "+user.getUsername()+"在时间"+new Date()+"退出系统！");
-                        config.userip.remove(user.getId());
-                        session.invalidate();
-                    }
-                    break;
+    public void userLogin(HttpServletRequest request, HttpServletResponse response) {
+        String message = null;
+        User u = null;
+        String sessionid = null;
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+            if (username==null || password==null || username.equals("") || password.equals("")){
+                message=config.NO;
+            }
+            else if(username.indexOf("'")>-1 || password.indexOf("'")>-1 ||
+                    username.indexOf("\"")>-1 || password.indexOf("\"")>-1){
+                message=config.NO;
+            }
+            else if(username.indexOf("=")>-1 || password.indexOf("=")>-1 ||
+                    username.indexOf("|")>-1 || password.indexOf("|")>-1 ||
+                    username.indexOf("\\")>-1 || password.indexOf("\\")>-1 ||
+                    username.indexOf("&")>-1 || password.indexOf("&")>-1 ||
+                    username.indexOf(">")>-1 || password.indexOf(">")>-1 ||
+                    username.indexOf("<")>-1 || password.indexOf("<")>-1){
+                message=config.NO;
+            }
+            else {
+                User user = new User();
+                user.setUsername(username);
+                user.setPassword(password);
+                List<User> list = this.userService.login(user);
+                if (list.size() == 1) {
+                    u = list.get(0);
+                    message = config.SUCCESS;
+                    HttpSession session = request.getSession();
+                    logger.info("用户" + u.getId() + " " + u.getUsername() + "在时间" + new Date() + "成功登录系统！");
+                    session.setAttribute("id", u.getId());
+                    session.setAttribute("username", username);
+                    session.setAttribute("userinfo", u);
+                    sessionid = session.getId();
+                    config.sessionmap.put(session.getId(), session);
+                    config.userip.put(u.getId(), request.getRemoteAddr());
+                } else {
+                    message = config.ERROR;
                 }
             }
-            System.out.println("cookie遍历结束！");
-            logger.info("未知用户在时间"+new Date()+"退出系统！");
+        }catch (Exception e){
+            logger.error(e.getMessage());
         }
-        else {
-            logger.info("未知用户在时间"+new Date()+"退出系统！");
+        try {
+            String listjson = JsonUtil.objectToJson(u);
+            String jsonstring="{\"info\":\""+message+"\",\"data\":"+listjson+",\"sessionid\":\"" + sessionid + "\"}";
+            PrintWriter out = response.getWriter();
+            out.print(jsonstring);
+            out.flush();
+            out.close();
+        }catch (IOException io){
+            logger.error(io.getMessage());
         }
-        if (sessionid!=null){
-            config.sessionmap.remove(sessionid);
-        }
+    }
 
-//        User user = (User) config.sessionmap.get("userinfo");
-//        Cookie userNameCookie = new Cookie("sessionid", user.getUserName());
-//        Cookie passwordCookie = new Cookie("loginPassword", loginUser.getPassword());
-//        userNameCookie.setMaxAge(0);
-//        userNameCookie.setPath("/");
-//        passwordCookie.setMaxAge(0);
-//        passwordCookie.setPath("/");
-//        response.addCookie(userNameCookie);
-//        if (config.sessionID!=null){
-//            HttpSession session = (HttpSession)config.sessionmap.get(config.sessionID);
-//            session.invalidate();
-//        }
-//        config.sessionmap.remove(config.sessionID);         //清除session信息
-//        config.sessionmap.remove("userinfo");         //清除用户信息
-//        config.sessionmap.remove("orderinfo");        //清除订单信息
-//        config.sessionID=null;
-        String message="success";
+    /**
+     * 用户退出系统，并清除cookie
+     * @param request
+     * @param response
+     */
+    @RequestMapping("/loginout")
+    public void userLoginOut(HttpServletRequest request, HttpServletResponse response) {
+        String sessionid=null;
+        try {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            Cookie[] cookies = request.getCookies();
+            if (cookies!=null && cookies.length>0) {
+                for (Cookie c : cookies) {
+                    if (c.getName().equals("sessionid")){
+                        sessionid=c.getValue();
+                        HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
+                        if (session==null){
+                            logger.info("未知用户在时间"+new Date()+"退出系统！");
+                        }
+                        else {
+                            User user=(User) session.getAttribute("userinfo");
+                            logger.info("用户"+user.getId()+" "+user.getUsername()+"在时间"+new Date()+"退出系统！");
+                            config.userip.remove(user.getId());
+                            session.invalidate();
+                        }
+                        break;
+                    }
+                }
+                logger.info("未知用户在时间"+new Date()+"退出系统！");
+            }
+            else {
+                logger.info("未知用户在时间"+new Date()+"退出系统！");
+            }
+            if (sessionid!=null){
+                config.sessionmap.remove(sessionid);
+            }
+        }catch (Exception e){
+            logger.error(e.getMessage());
+        }
+        String message=config.SUCCESS;
         myUtils.printMsg(request,response,message);
     }
 
+    /**
+     * 判断用户是否允许登录，若当前会话有效，则说明该用户已登录，拒绝重复登录
+     * @param request
+     * @param response
+     */
     @RequestMapping("/islogin")
-    public void checkSession(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("in islogin()!");
+    public void checkSession(HttpServletRequest request, HttpServletResponse response) {
         String sessionid = request.getParameter("sessionid");
         HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
-        String message=null;
-        if (session==null){     //若当前会话有效，则说明该用户已登录
-            message="yes";
+        String message;
+        if (session==null){
+            message=config.YES;
         }
         else {
-            message="no";
+            message=config.NO;
         }
         myUtils.printMsg(request,response,message);
     }
 
-    @RequestMapping("/check")       //这里做了权限控制
-    public void checkTest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        System.out.println("in checkTest()!");
+    /**
+     * 判断权限并进行权限控制，根据前端URL进行路由控制，最后判断是否异地登录
+     * @param request
+     * @param response
+     * 仅用户、管理员具有查看用户信息的权限
+     * 仅用户、管理员具有查看用户订单的权限
+     * 仅销售商、管理员具有商品类别管理的权限
+     * 仅销售商、管理员具有产品信息管理的权限
+     * 仅销售商、管理员具有订单管理的权限
+     * 仅管理员具有用户管理的权限
+     * 仅管理员具有等级管理的权限
+     * 仅管理员具有权限管理的权限
+     */
+    @RequestMapping("/check")
+    public void checkTest(HttpServletRequest request, HttpServletResponse response) {
         String sessionid = request.getParameter("sessionid");
         String href = request.getParameter("href");
-        System.out.println("href:"+href);
-
+        logger.info("check href:"+href);
         HttpSession session = (HttpSession)config.sessionmap.get(sessionid);
-        String message=null;
+        String message;
         if (session==null){
-            message="error";
+            message=config.ERROR;
         }
-        else {              //判断权限，根据前端URL进行路由控制
+        else {
             User user=(User) session.getAttribute("userinfo");
-            System.out.println("当前用户为:"+user.getUsername()+" 用户角色为："+user.getRole());
-            if (href.indexOf("userinfo")>0 && user.getRole()!=0 && user.getRole()!=1 ){      //仅用户、管理员具有查看用户信息的权限
-                System.out.println("当前用户没有userinfo权限");
-                message="no";
+            logger.info("当前用户为:"+user.getUsername()+" 用户角色为："+user.getRole());
+            if (href.indexOf("userinfo")>0 && user.getRole()!=0 && user.getRole()!=1 ){
+                logger.info("当前用户没有userinfo权限");
+                message=config.NO;
             }
-            else if (href.indexOf("personalOrder")>0 && user.getRole()!=0 && user.getRole()!=1 ){      //仅用户、管理员具有查看用户订单的权限
-                System.out.println("当前用户没有personalOrder权限");
-                message="no";
+            else if (href.indexOf("personalOrder")>0 && user.getRole()!=0 && user.getRole()!=1 ){
+                logger.info("当前用户没有personalOrder权限");
+                message=config.NO;
             }
-            else if (href.indexOf("categorysManagement")>0 && user.getRole()!=0 && user.getRole()!=2 ){      //仅销售商、管理员具有商品类别管理的权限
-                System.out.println("当前用户没有categorysManagement权限");
-                message="no";
+            else if (href.indexOf("categorysManagement")>0 && user.getRole()!=0 && user.getRole()!=2 ){
+                logger.info("当前用户没有categorysManagement权限");
+                message=config.NO;
             }
-            else if (href.indexOf("productsManagement")>0 && user.getRole()!=0 && user.getRole()!=2 ){      //仅销售商、管理员具有产品信息管理的权限
-                System.out.println("当前用户没有productsManagement权限");
-                message="no";
+            else if (href.indexOf("productsManagement")>0 && user.getRole()!=0 && user.getRole()!=2 ){
+                logger.info("当前用户没有productsManagement权限");
+                message=config.NO;
             }
-            else if (href.indexOf("ordersManagement")>0 && user.getRole()!=0 && user.getRole()!=2 ){      //仅销售商、管理员具有订单管理的权限
-                System.out.println("当前用户没有ordersManagement权限");
-                message="no";
+            else if (href.indexOf("ordersManagement")>0 && user.getRole()!=0 && user.getRole()!=2 ){
+                logger.info("当前用户没有ordersManagement权限");
+                message=config.NO;
             }
-            else if (href.indexOf("usersManagement")>0 && user.getRole()!=0){      //仅管理员具有用户管理的权限
-                System.out.println("当前用户没有usersManagement权限");
-                message="no";
+            else if (href.indexOf("usersManagement")>0 && user.getRole()!=0){
+                logger.info("当前用户没有usersManagement权限");
+                message=config.NO;
             }
-            else if (href.indexOf("levelManagement")>0 && user.getRole()!=0){      //仅管理员具有等级管理的权限
-                System.out.println("当前用户没有levelManagement权限");
-                message="no";
+            else if (href.indexOf("levelManagement")>0 && user.getRole()!=0){
+                logger.info("当前用户没有levelManagement权限");
+                message=config.NO;
             }
-            else if (href.indexOf("authorizationManagement")>0 && user.getRole()!=0){      //仅管理员具有权限管理的权限
-                System.out.println("当前用户没有authorizationManagement权限");
-                message="no";
+            else if (href.indexOf("authorizationManagement")>0 && user.getRole()!=0){
+                logger.info("当前用户没有authorizationManagement权限");
+                message=config.NO;
             }
-            else {          //判断登录情况（是否为异地登录）
-                String userip = (String) config.userip.get(user.getId());   //取出原始IP
-                String remoteaddress = request.getRemoteAddr();             //客户端IP
-                System.out.println("原始userip:" + userip + " 客户端remoteaddress:" + remoteaddress);
-                if (userip.equals(remoteaddress)) {      //IP相同说明是本人访问
-                    message = "success";
-                } else {          //不同则意味着已经在其他地方登录
-                    message = "bad";
+            else {
+                String userip = (String) config.userip.get(user.getId());
+                String remoteaddress = request.getRemoteAddr();
+                logger.info("原始userip:" + userip + " 客户端remoteaddress:" + remoteaddress);
+                if (userip.equals(remoteaddress)) {
+                    message = config.SUCCESS;
+                } else {
+                    message = config.BAD;
+                    logger.info("当前用户在"+new Date()+"异地登录！");
                 }
-                if (!message.equals("success")){
+                if (!message.equals(config.SUCCESS)){
                     session.invalidate();
                 }
             }
         }
         myUtils.printMsg(request,response,message);
-
     }
-
 }
